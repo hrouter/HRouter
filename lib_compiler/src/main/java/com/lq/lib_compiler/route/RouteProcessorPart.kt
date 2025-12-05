@@ -32,13 +32,22 @@ internal class RouteSymbolProcessorPart(environment: SymbolProcessorEnvironment)
         resolver.getSymbolsWithAnnotation(Const.RouteQualifiedName)
             .filterIsInstance<KSClassDeclaration>()
             .forEach {
-                val symbol = it.annotations.first {
-                    it.shortName.asString() == Const.ROUTE_SHORT_NAME
+                val symbol = it.annotations.first { annotation ->
+                    annotation.shortName.asString() == Const.ROUTE_SHORT_NAME
                 }
                 val path = symbol.arguments.firstOrNull()?.value as? String ?: return@forEach
                 val classInfo = it.qualifiedName?.asString() ?: return@forEach
                 val group = path.split("/").getOrNull(1) ?: return@forEach
 
+                //相同path 编译期应做提示
+                if(routeMap.containsKey(group) && routeMap[group]?.contains(path) == true){
+                    logger.error(
+                        "HRouter ERROR: Route '$group' '$path' is duplicated.\n" +
+                                " - First: ${routeMap[group]} \n" +
+                                " - Second: $classInfo"
+                    )
+                    return
+                }
                 routeMap.getOrPut(group) { mutableMapOf() }[path] = classInfo
 
                 RouteDeepLinkUtil.classToPath(classInfo,path)
@@ -46,7 +55,6 @@ internal class RouteSymbolProcessorPart(environment: SymbolProcessorEnvironment)
         routeMap.forEach {
             logger.warn("Route Map Info :$it")
         }
-        //todo 查找相同path并提示
         if(routeMap.isNotEmpty()){
             generateGroup(routeMap)
             generateRoot(routeMap)
@@ -60,21 +68,21 @@ internal class RouteSymbolProcessorPart(environment: SymbolProcessorEnvironment)
             Const.MutableMapClassName.parameterizedBy(Const.StringClassName,Const.StringClassName))
 
         for (group in routeMap.keys){
-            val className = "${Const.HROUTER_PACKAGE}.${getGroupName(group)}"
+            val className = "${Const.H_ROUTER_PACKAGE}.${getGroupName(group)}"
             function.addStatement("rootMap[%S] = %S",group,className)
         }
 
         val classInfo = TypeSpec.classBuilder(rootClassName).addSuperinterface(rootInterface).addFunction(function.build()).build()
 
-        val fileSpec = FileSpec.builder(Const.HROUTER_PACKAGE, rootClassName)
+        val fileSpec = FileSpec.builder(Const.H_ROUTER_PACKAGE, rootClassName)
             .addType(classInfo).build()
 
-        val file = codeGenerator.createNewFile(Dependencies(false),Const.HROUTER_PACKAGE,rootClassName)
+        val file = codeGenerator.createNewFile(Dependencies(false),Const.H_ROUTER_PACKAGE,rootClassName)
         file.bufferedWriter().use { writer ->
             fileSpec.writeTo(writer)
         }
 
-        MetaInfUtil.writeMetaInf(codeGenerator,"${Const.HROUTER_PACKAGE}.$rootClassName",moduleName,Const.ROUTE_CONTRACT)
+        MetaInfUtil.writeMetaInf(codeGenerator,"${Const.H_ROUTER_PACKAGE}.$rootClassName",moduleName,Const.ROUTE_CONTRACT)
     }
 
     fun generateGroup(groupMap: Map<String, Map<String, String>>) {
@@ -95,12 +103,12 @@ internal class RouteSymbolProcessorPart(environment: SymbolProcessorEnvironment)
                 )
                 function.addStatement("groupMap[%S] = %L", path, routeMetaInstance)
             }
-            val fileSpec = FileSpec.builder(Const.HROUTER_PACKAGE, className)
+            val fileSpec = FileSpec.builder(Const.H_ROUTER_PACKAGE, className)
                 .addType(TypeSpec.classBuilder(className).addSuperinterface(groupInterface).addFunction(function.build()).build()).build()
 
             val file = codeGenerator.createNewFile(
                 Dependencies(aggregating = true),
-                Const.HROUTER_PACKAGE,
+                Const.H_ROUTER_PACKAGE,
                 getGroupName(groupName)
             )
             file.bufferedWriter().use { writer ->
@@ -109,17 +117,6 @@ internal class RouteSymbolProcessorPart(environment: SymbolProcessorEnvironment)
         }
     }
 
-    private fun writeMetaInf(rootClassName:String){
-        val file = codeGenerator.createNewFile(
-            Dependencies(aggregating = true),
-            packageName = "META-INF/route",
-            fileName = moduleName,
-        )
-        file.bufferedWriter().use { writer ->
-            writer.write(rootClassName)
-            writer.newLine()
-        }
-    }
 
 }
 

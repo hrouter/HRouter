@@ -47,24 +47,21 @@ class MainActivity : ComponentActivity() {
 fun Greeting(name: String, modifier: Modifier = Modifier) {
     val context = LocalContext.current
     Button(onClick = {
-        toTest(context)
+        toLogin()
     },modifier = Modifier.padding(50.dp,100.dp)) {
         Text(text = "跳转信息")
     }
 }
 
-fun toLogin(context: Context){
-    HRouter.build("/main/test")
-        .withContext(context)
-        .withParams {
-            string("userName", "Android")
-            int("account", 100)
-            parameter("parameter","current parameter")
-        }.navigate()
+fun toLogin(){
+    HRouter.build("/login/login").withParams {
+       "userName" to "Android"
+        "account" to 100
+    }.navigate()
 }
 
 fun toTest(context: Context){
-    HRouter.buildUri("myapp://login").withContext(context).navigate()
+    HRouter.buildUri("https://myapp.day/login").withContext(context).navigate()
 }
 
 

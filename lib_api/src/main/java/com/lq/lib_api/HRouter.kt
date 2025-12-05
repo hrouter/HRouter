@@ -2,8 +2,7 @@ package com.lq.lib_api
 
 import android.app.Application
 import com.lq.lib_api.autowired.AutoWiredHelper
-import com.lq.lib_api.core.HRouterDelegate
-import com.lq.lib_api.core.RouterBuilder
+import com.lq.lib_api.route.RouterBuilder
 import com.lq.lib_api.deeplink.DeepLinkManager
 import com.lq.lib_api.degrade.DegradeManager
 import com.lq.lib_api.exception.UriParseIllegalException

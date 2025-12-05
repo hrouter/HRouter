@@ -5,6 +5,7 @@ import com.lq.lib_annotation.RouterInterceptor
 import com.lq.lib_api.interceptor.IRouteInterceptor
 import com.lq.lib_api.interceptor.InterceptorChain
 
+/*
 @RouterInterceptor
 class PermissionInterceptor: IRouteInterceptor {
     override fun init(context: Context) {
@@ -20,4 +21,4 @@ class PermissionInterceptor: IRouteInterceptor {
         }
 
     }
-}
+}*/

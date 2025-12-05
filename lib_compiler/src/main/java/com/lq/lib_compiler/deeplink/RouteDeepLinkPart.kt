@@ -24,8 +24,8 @@ internal class RouteDeepLinkPart (private val environment: SymbolProcessorEnviro
         resolver.getSymbolsWithAnnotation(Const.DeepLinkQualifiedName)
             .filterIsInstance<KSClassDeclaration>()
             .forEach {
-                val symbol = it.annotations.first {
-                    it.shortName.asString() == Const.DEEPLINK_SHORT_NAME
+                val symbol = it.annotations.first { annotation ->
+                    annotation.shortName.asString() == Const.DEEPLINK_SHORT_NAME
                 }
                 val classInfo = it.qualifiedName?.asString() ?: return@forEach
                 val links = symbol.arguments.firstOrNull()?.value as? List<*> ?: emptyList<Any?>()
@@ -52,16 +52,16 @@ internal class RouteDeepLinkPart (private val environment: SymbolProcessorEnviro
             }
         }
         val typeSpec = TypeSpec.objectBuilder(className).addSuperinterface(Const.DeepLinkRegisterClassName).addFunction(function.build())
-        val fileSpe = FileSpec.builder(Const.HROUTER_PACKAGE,className).addType(typeSpec.build()).build()
+        val fileSpe = FileSpec.builder(Const.H_ROUTER_PACKAGE,className).addType(typeSpec.build()).build()
         val file = codeGenerator.createNewFile(
             Dependencies(aggregating = true),
-            Const.HROUTER_PACKAGE,
+            Const.H_ROUTER_PACKAGE,
             className
         )
         file.bufferedWriter().use { writer ->
             fileSpe.writeTo(writer)
         }
-        MetaInfUtil.writeMetaInf(codeGenerator,"${Const.HROUTER_PACKAGE}.$className",moduleName,Const.DEEPLINK_CONTRACT)
+        MetaInfUtil.writeMetaInf(codeGenerator,"${Const.H_ROUTER_PACKAGE}.$className",moduleName,Const.DEEPLINK_CONTRACT)
         RouteDeepLinkUtil.clear()
     }
 

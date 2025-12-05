@@ -40,6 +40,10 @@ class ParameterBuilder {
         bundle.putSerializable(key,value)
     }
 
+    infix fun String.to(value:Any?){
+        parameter(this,value)
+    }
+
     fun <T> parameter(key: String,value:T){
         when(value){
             is String -> string(key,value)

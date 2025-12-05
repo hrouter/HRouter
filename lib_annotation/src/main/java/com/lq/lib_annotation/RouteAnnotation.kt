@@ -13,12 +13,12 @@ annotation class AutoWired(val required:Boolean = true)
 
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.SOURCE)
-annotation class RouterInterceptor(val priority : Int = 0,val group: String = "")
+annotation class RouterInterceptor(val path: String = "",val priority : Int = 0)
 
 
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.SOURCE)
-annotation class RouteDegrade(val priority:Int = 0,val group: String ="")
+annotation class RouteDegrade(val path: String ="", val priority:Int = 0)
 
 
 @Target(AnnotationTarget.CLASS)

@@ -4,5 +4,6 @@
 
     <application>
         <activity android:name=".LoginActivity"/>
+        <activity android:name=".LoginTestActivity"/>
     </application>
 </manifest>

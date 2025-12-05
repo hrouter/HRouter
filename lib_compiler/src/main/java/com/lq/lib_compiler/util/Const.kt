@@ -8,7 +8,7 @@ import com.squareup.kotlinpoet.ClassName
 
 internal object Const {
 
-    const val HROUTER_PACKAGE: String = "com.lq.router"
+    const val H_ROUTER_PACKAGE: String = "com.lq.router"
 
     private const val ROOT_PACKAGE = "com.lq.lib_annotation.route"
 

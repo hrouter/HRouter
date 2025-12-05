@@ -2,7 +2,7 @@ package com.lq.lib_compiler.interceptor
 
 import com.lq.lib_compiler.ProcessorPart
 import com.lq.lib_compiler.util.Const
-import com.lq.lib_compiler.util.Const.HROUTER_PACKAGE
+import com.lq.lib_compiler.util.Const.H_ROUTER_PACKAGE
 import com.lq.lib_compiler.util.MetaInfUtil
 import com.lq.lib_compiler.util.capitalizeFirst
 import com.google.devtools.ksp.processing.CodeGenerator
@@ -28,22 +28,21 @@ internal class RouteInterceptorPart(environment: SymbolProcessorEnvironment): Pr
         val routeInterceptors = mutableListOf<String>()
         resolver.getSymbolsWithAnnotation(Const.InterceptorQualifiedName).filterIsInstance<KSClassDeclaration>()
             .forEach {
-                val symbol = it.annotations.first{
-                    it.shortName.asString() == Const.INTERCEPTOR_SHORT_NAME
+                val symbol = it.annotations.first{ annotation ->
+                    annotation.shortName.asString() == Const.INTERCEPTOR_SHORT_NAME
                 }
 
-                val classInfo = it.qualifiedName?.asString() ?:return@forEach
-                val destination = ClassName.bestGuess(classInfo)
+                val className = it.qualifiedName?.asString() ?:return@forEach
+                var path = ""
                 var priority = 0
-                var group = ""
                 symbol.arguments.forEach { arg ->
                     when (arg.name?.asString()) {
+                        "path" -> path = arg.value as String
                         "priority" -> priority = arg.value as Int
-                        "group" -> group = arg.value as String
                     }
                 }
-                logger.warn("Route Interceptor Class Path :$classInfo  Priority:$priority")
-                routeInterceptors += "InterceptorMeta(\"$classInfo\",$priority,\"$group\")"
+                logger.warn("Route Interceptor Class Path :$className  Priority:$priority")
+                routeInterceptors += "InterceptorMeta(\"$className\",$priority,\"$path\")"
             }
         if(routeInterceptors.isNotEmpty()){
             generateIntercept(routeInterceptors)
@@ -63,12 +62,12 @@ internal class RouteInterceptorPart(environment: SymbolProcessorEnvironment): Pr
 
         val typeBuilder = TypeSpec.objectBuilder(className).addSuperinterface(Const.InterceptorRegisterClassName)
             .addFunction(functionBuilder.build())
-        val fileSpec = FileSpec.builder(HROUTER_PACKAGE,className).addType(typeBuilder.build()).build()
-        val file = codeGenerator.createNewFile(Dependencies(false),HROUTER_PACKAGE,className)
+        val fileSpec = FileSpec.builder(H_ROUTER_PACKAGE,className).addType(typeBuilder.build()).build()
+        val file = codeGenerator.createNewFile(Dependencies(false),H_ROUTER_PACKAGE,className)
         file.bufferedWriter().use { writer ->
             fileSpec.writeTo(writer)
         }
-        MetaInfUtil.writeMetaInf(codeGenerator,"${HROUTER_PACKAGE}.$className",moduleName,Const.INTERCEPTOR_CONTRACT)
+        MetaInfUtil.writeMetaInf(codeGenerator,"${H_ROUTER_PACKAGE}.$className",moduleName,Const.INTERCEPTOR_CONTRACT)
     }
 
 

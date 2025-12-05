@@ -9,6 +9,6 @@ interface IRouteInterceptor {
 
     fun init(context: Context)
 
-    suspend fun proceed(chain: InterceptorChain)
+    suspend fun intercept(chain: InterceptorChain): RouteResult
 }
 

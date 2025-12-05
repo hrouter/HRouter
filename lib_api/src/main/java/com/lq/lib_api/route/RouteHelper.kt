@@ -8,12 +8,13 @@ import com.lq.lib_api.exception.PathIllegalException
 import com.lq.lib_api.exception.PathNotFoundException
 import java.util.concurrent.ConcurrentHashMap
 
+//todo 高并发测试
 internal object RouteHelper {
     private val routeRoot = mutableMapOf<String, String>()
     private val groupCache = ConcurrentHashMap<String, Map<String, RouteMeta>>()
 
     fun findRoot(){
-        val clazz = Class.forName("com.lq.router.HRouterIndex")
+        val clazz = Class.forName("com.lq.router.HRouterIndex") //路由总表
         val instance = clazz.getField("INSTANCE").get(null) // 拿到 object 的单例实例
         val method = clazz.getDeclaredMethod("getRoots")
 
@@ -24,6 +25,7 @@ internal object RouteHelper {
         }
     }
 
+    //todo 如果在更大型的项目中，应该实现前缀树搜索
     fun findGroup(path: String): RouteMeta {
         val segments = path.split("/")
         require(path.startsWith("/") && segments.size >= 2) { throw PathIllegalException(path) }
@@ -49,6 +51,6 @@ internal object RouteHelper {
     }
 
     private fun cacheGroup(group: String,map:Map<String, RouteMeta>){
-        groupCache.put(group, map)
+        groupCache[group] = map
     }
 }

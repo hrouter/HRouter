@@ -2,36 +2,28 @@ package com.lq.login
 
 import android.content.Context
 import com.lq.lib_annotation.RouterInterceptor
-import com.lq.lib_api.HRouter
 import com.lq.lib_api.interceptor.IRouteInterceptor
 import com.lq.lib_api.interceptor.InterceptorChain
+import com.lq.lib_api.interceptor.RouteResult
 import com.lq.lib_api.util.LogUtil
-import com.lq.lib_api.util.showToast
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.withContext
 
-@RouterInterceptor
+@RouterInterceptor(priority = 1, path = "/login")
 class LoginInterceptor: IRouteInterceptor {
+
     override val whiteList: Set<String>
         get() = setOf("/login/login")
+
     override fun init(context: Context) {
 
     }
 
-    override suspend fun proceed(chain: InterceptorChain) {
-        withContext(Dispatchers.IO) {
-            delay(1000)
-            if (LoginManager.isLogin) {
-                chain.proceed()
-            } else {
-                LogUtil.d("未登录 path:${chain.path}")
-                withContext(Dispatchers.Main){
-                    showToast(chain.context,"未登录 path:${chain.path}")
-                    HRouter.build("/login/login").navigate()
-                    chain.intercept("未登录")
-                }
-            }
+    override suspend fun intercept(chain: InterceptorChain): RouteResult {
+        if(chain.request.path == "/login/login"){
+            LogUtil.d("登录拦截器")
+            return RouteResult(allow = false, reason = "请先登录", redirect = "/login/test")
         }
+        return chain.proceed(chain.request)
     }
+
+
 }
