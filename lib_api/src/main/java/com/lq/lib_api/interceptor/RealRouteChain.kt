@@ -15,6 +15,4 @@ class RealRouteChain(
         return interceptors[index].intercept(next)
     }
 
-
-
 }
