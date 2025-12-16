@@ -1,6 +1,7 @@
 package com.lq.lib_api.interceptor
 
 import android.content.Context
+import com.lq.lib_api.entity.RouteAction
 
 
 interface IRouteInterceptor {
@@ -9,6 +10,6 @@ interface IRouteInterceptor {
 
     fun init(context: Context)
 
-    suspend fun intercept(chain: InterceptorChain): RouteResult
+    suspend fun intercept(chain: InterceptorChain): RouteAction
 }
 

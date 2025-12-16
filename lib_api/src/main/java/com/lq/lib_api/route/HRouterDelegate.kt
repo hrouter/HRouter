@@ -5,33 +5,29 @@ import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.core.app.ActivityOptionsCompat
 import com.lq.lib_annotation.data.RouteMeta
 import com.lq.lib_api.autowired.ParameterBuilder
 import com.lq.lib_api.degrade.DegradeManager
-import com.lq.lib_api.interceptor.InterceptorHistory
-import com.lq.lib_api.interceptor.InterceptorManager
+import com.lq.lib_api.entity.DispatchResult
 import com.lq.lib_api.interceptor.RouteDispatcher
 import com.lq.lib_api.interceptor.RouteRequest
-import com.lq.lib_api.interceptor.RouteResult
 import com.lq.lib_api.util.LogUtil
+import com.lq.lib_api.util.showToast
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.util.concurrent.atomic.AtomicBoolean
 
-internal class HRouterDelegate(path: String) {
-    private var realPath = path
+internal class HRouterDelegate(private val path: String) {
     private val bundle = Bundle()
     private lateinit var context: Context
     private var launcher: ActivityResultLauncher<Intent>? = null
     private var enterAnim: Int? = null
     private var exitAnim: Int? = null
-
-    private var isRedirect : AtomicBoolean = AtomicBoolean(false)
     private lateinit var routeMeta: RouteMeta
     private lateinit var intentBuilder : IntentBuilder
 
@@ -39,18 +35,8 @@ internal class HRouterDelegate(path: String) {
     /*
     * 获取路由元数据
     * */
-    fun setRouteMeta(): HRouterDelegate{
-        routeMeta = RouteHelper.findGroup(realPath)
-        return this
-    }
-
-    fun setRedirect(redirect : Boolean = true): HRouterDelegate{
-        isRedirect.set(redirect)
-        return this
-    }
-
-    fun setPath(newPath: String): HRouterDelegate {
-        realPath = newPath
+    fun setRouteMeta(path: String): HRouterDelegate{
+        routeMeta = RouteHelper.findGroup(path)
         return this
     }
 
@@ -75,8 +61,8 @@ internal class HRouterDelegate(path: String) {
         return this
     }
 
-    private fun buildIntent(): IntentBuilder {
-        if(::routeMeta.isInitialized.not()) setRouteMeta()
+    private fun buildIntent(path: String): IntentBuilder {
+        if(::routeMeta.isInitialized.not()) setRouteMeta(path)
         return IntentBuilder(context).apply {
             set(routeMeta)
             put(bundle)
@@ -90,40 +76,24 @@ internal class HRouterDelegate(path: String) {
     * todo 需测试
     * */
     fun navigate() {
-        try {
-            intentBuilder = buildIntent()
-            val path = intentBuilder.getPath() ?: return
-            val request = RouteRequest(path, context, bundle)
-            CoroutineScope(SupervisorJob() + Dispatchers.IO).launch{
-                val result = RouteDispatcher.dispatch(request)
-                withContext(Dispatchers.Main){
-                    consumeResult(result)
+        intentBuilder = buildIntent(path)
+        val path = intentBuilder.getPath() ?: return
+        CoroutineScope(SupervisorJob() + Dispatchers.IO).launch{
+            when(val result = RouteDispatcher.dispatch(RouteRequest(path, context, bundle))){
+                is DispatchResult.Success -> {
+                    LogUtil.d("realPath:${result.request.path}")
+                    setRouteMeta(result.request.path)
+                    intentBuilder = buildIntent(result.request.path)
+                    startActivity()
                 }
-
+                is DispatchResult.Fail -> {
+                    showToast(context,result.reason)
+                    return@launch
+                }
             }
-            InterceptorHistory.pop(path)
-
-        }catch (e: Exception){
-            LogUtil.d("navigate exception : ${e.message}")
-            DegradeManager.handleDegrade()
         }
     }
 
-    fun consumeResult(result: RouteResult) {
-        if (result.allow && result.redirect == null) {
-            // 放行 — 正常启动
-            startActivity()
-            return
-        }
-
-        if (result.redirect != null) {
-            // 重定向
-            LogUtil.d("重定向")
-            return
-        }
-        LogUtil.d("拦截成功")
-
-    }
 
 
     /*

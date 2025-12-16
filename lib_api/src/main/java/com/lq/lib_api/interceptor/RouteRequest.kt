@@ -7,5 +7,4 @@ data class RouteRequest(
     val path: String,
     val context: Context,
     val extras: Bundle? = null,
-    val visitedPaths: MutableSet<String> = mutableSetOf()
 )

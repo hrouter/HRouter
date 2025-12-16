@@ -14,8 +14,5 @@ class RouterBuilder (private val path: String){
 
     fun withLauncher(launcher: ActivityResultLauncher<Intent>) = apply { delegate.withLauncher(launcher) }
 
-    fun redirect(path:String) = apply {
-        delegate.setRedirect().setPath(path).navigate()
-    }
     fun navigate() = delegate.navigate()
 }

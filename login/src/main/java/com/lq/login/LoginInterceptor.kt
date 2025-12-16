@@ -4,11 +4,10 @@ import android.content.Context
 import com.lq.lib_annotation.RouterInterceptor
 import com.lq.lib_api.interceptor.IRouteInterceptor
 import com.lq.lib_api.interceptor.InterceptorChain
-import com.lq.lib_api.interceptor.RouteResult
-import com.lq.lib_api.util.LogUtil
+import com.lq.lib_api.entity.RouteAction
 
-@RouterInterceptor(priority = 1, path = "/login")
-class LoginInterceptor: IRouteInterceptor {
+@RouterInterceptor(priority = 1, path = "/login/login")
+class LoginInterceptor : IRouteInterceptor {
 
     override val whiteList: Set<String>
         get() = setOf("/login/login")
@@ -17,13 +16,10 @@ class LoginInterceptor: IRouteInterceptor {
 
     }
 
-    override suspend fun intercept(chain: InterceptorChain): RouteResult {
-        if(chain.request.path == "/login/login"){
-            LogUtil.d("登录拦截器")
-            return RouteResult(allow = false, reason = "请先登录", redirect = "/login/test")
-        }
+    override suspend fun intercept(chain: InterceptorChain): RouteAction {
+        val isLogin = false
+        if (!isLogin) return RouteAction.Redirect(chain.request.copy(path = "/login/test"))
         return chain.proceed(chain.request)
     }
-
 
 }

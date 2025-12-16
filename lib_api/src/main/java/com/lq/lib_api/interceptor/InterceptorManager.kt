@@ -29,19 +29,26 @@ internal object InterceptorManager {
         }
         data.sortedBy { it.priority }.toMutableList().forEach {
             InterceptorFactory.create(context,it.className).apply {
-                addInterceptor(this)
+                interceptors.add(this)
             }
         }
     }
 
 
-    fun addInterceptor(intercept: IRouteInterceptor){
-        interceptors.add(intercept)
+    fun getInterceptorsForRequest(requestPath: String): List<IRouteInterceptor> {
+        return interceptors.filterIndexed { index, interceptor ->
+            val meta = data.getOrNull(index) ?: return@filterIndexed false
+            pathMatches(requestPath, meta.path)
+        }
     }
 
-
-    private fun isFromGroup(path:String,group:String):Boolean{
-        return true
+    private fun pathMatches(requestPath: String, interceptorPath: String): Boolean {
+        if (interceptorPath == requestPath) return true
+        if (interceptorPath.endsWith("/*") &&
+            requestPath.startsWith(interceptorPath.removeSuffix("/*"))
+        ) return true
+        if (interceptorPath == "*") return true
+        return false
     }
 
     private fun isInWhiteList(path: String,route: IRouteInterceptor) :Boolean{
