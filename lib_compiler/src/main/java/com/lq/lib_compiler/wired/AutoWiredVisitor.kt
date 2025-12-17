@@ -5,11 +5,11 @@ import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSVisitorVoid
+import com.google.devtools.ksp.symbol.Modifier
+import com.lq.lib_compiler.util.Const
 import com.squareup.kotlinpoet.ClassName
-import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
-import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.ksp.toTypeName
 
@@ -24,10 +24,12 @@ internal class AutoWiredVisitor(
 
         logger.warn("className: $className   packageName: $packageName")
 
-        val fileSpec = FileSpec.Companion.builder(packageName, "${className}AutoWired")
-        val classSpec = TypeSpec.Companion.classBuilder("${className}AutoWired")
+        val fileSpec = FileSpec.builder(packageName, "${className}AutoWired")
+        val classSpec = TypeSpec.classBuilder("${className}AutoWired")
 
-        val funcSpec = FunSpec.Companion.builder("inject")
+        val adapterClassName = Const.AutoWiredTypeAdapterClassName
+
+        val funcSpec = FunSpec.builder("inject")
             .addParameter("target", ClassName(packageName, className))
             .addParameter("bundle", ClassName("android.os", "Bundle").copy(nullable = true))
 
@@ -37,72 +39,38 @@ internal class AutoWiredVisitor(
             val injectedName = property.simpleName.asString()
 
             val type = property.type.resolve()
-            val nonNullableType = type.makeNotNullable()
-            val typeQualifiedName = nonNullableType.declaration.qualifiedName?.asString()
+            val isLateinit = property.modifiers.contains(Modifier.LATEINIT)
+            val isNullable = property.type.resolve().isMarkedNullable
 
-            logger.warn("inject: $injectedName is type:$type   qualified: $typeQualifiedName")
+            logger.warn("inject: $injectedName is type:$type   nullable: $isNullable   lateinit: $isLateinit")
 
-            val typeInfo = when (typeQualifiedName) {
-                "kotlin.String" -> "String" to "\"\""
-                "kotlin.Int" -> "Int" to "0"
-                "kotlin.Double" -> "Double" to "0.0"
-                "kotlin.Long" -> "Long" to "0L"
-                "kotlin.Float" -> "Float" to "0f"
-                "kotlin.Boolean" -> "Boolean" to "false"
+            val typeName = type.toTypeName()
+            val adapterType = typeName.copy(nullable = false) // adapter 必须非空类型
+
+            val code = when {
+                isLateinit -> {
+                    // lateinit：强制非空，注入失败直接抛异常
+                    "target.%L = %T.getAdapter(%T::class)?.invoke(bundle, %S) as? %T ?: throw IllegalStateException(\"lateinit field '%L' cannot be null\")"
+                }
+                isNullable -> {
+                    // 可空：允许 null
+                    "target.%L = %T.getAdapter(%T::class)?.invoke(bundle, %S) as? %T"
+                }
                 else -> {
-                    if (nonNullableType.declaration is KSClassDeclaration) {
-                        val superTypes = (nonNullableType.declaration as KSClassDeclaration).superTypes.mapNotNull {
-                            it.resolve().declaration.qualifiedName?.asString()
-                        }
-                        val isParcelable = "android.os.Parcelable" in superTypes || typeQualifiedName == "android.os.Parcelable"
-                        val isSerializable = "java.io.Serializable" in superTypes || typeQualifiedName == "java.io.Serializable"
-                        when {
-                            isParcelable -> "Parcelable" to null
-                            isSerializable -> "Serializable" to null
-                            else -> {
-                                logger.warn("Unsupported type: $typeQualifiedName for field $injectedName")
-                                null
-                            }
-                        }
-                    } else {
-                        logger.warn("Unknown declaration for $injectedName")
-                        null
-                    }
+                    // 非nullable非lateinit：保留默认值
+                    "target.%L = %T.getAdapter(%T::class)?.invoke(bundle, %S) as? %T ?: target.%L"
                 }
-            } ?: return@forEach
+            }
 
-            val (method, defaultValue) = typeInfo
-
-            when (method) {
-                "Parcelable" -> {
-                    val codeBlock = generateCodeBlock(injectedName, nonNullableType.toTypeName(), required)
-                    funcSpec.addCode(codeBlock)
-                }
-
-                "Serializable" -> {
-                    funcSpec.addStatement(
-                        "target.%L = bundle?.getSerializable(%S) as? %T",
-                        injectedName, injectedName, nonNullableType.toTypeName()
-                    )
-                }
-
-                else -> {
-                    if (required) {
-                        funcSpec.addStatement(
-                            "target.%L = bundle?.get%L(%S)",
-                            injectedName, method, injectedName
-                        )
-                    } else {
-                        funcSpec.addStatement(
-                            "target.%L = bundle?.get%L(%S) ?: target.%L",
-                            injectedName, method, injectedName, injectedName
-                        )
-                    }
-                }
+            when {
+                isLateinit -> funcSpec.addStatement(code, injectedName, adapterClassName, adapterType, injectedName, typeName, injectedName)
+                isNullable -> funcSpec.addStatement(code, injectedName, adapterClassName, adapterType, injectedName, typeName)
+                else -> funcSpec.addStatement(code, injectedName, adapterClassName, adapterType, injectedName, typeName, injectedName)
             }
         }
 
         classSpec.addFunction(funcSpec.build())
+
         val info = fileSpec.addType(classSpec.build()).build()
         val file = codeGenerator.createNewFile(
             Dependencies(true),
@@ -114,36 +82,4 @@ internal class AutoWiredVisitor(
         logger.warn("AutoWiredVisitor completed for $className")
     }
 
-    private fun generateCodeBlock(name: String, type: TypeName, required: Boolean): CodeBlock {
-        val codeBuilder = CodeBlock.Companion.builder()
-
-        codeBuilder.beginControlFlow("if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU)")
-        if (required) {
-            codeBuilder.addStatement(
-                "target.%L = bundle?.getParcelable(%S, %T::class.java)",
-                name, name, type
-            )
-        } else {
-            codeBuilder.addStatement(
-                "target.%L = bundle?.getParcelable(%S, %T::class.java) ?: target.%L",
-                name, name, type, name
-            )
-        }
-
-        codeBuilder.nextControlFlow("else")
-        if (required) {
-            codeBuilder.addStatement(
-                "target.%L = bundle?.getParcelable(%S)",
-                name, name
-            )
-        } else {
-            codeBuilder.addStatement(
-                "target.%L = bundle?.getParcelable(%S) ?: target.%L",
-                name, name, name
-            )
-        }
-
-        codeBuilder.endControlFlow()
-        return codeBuilder.build()
-    }
 }

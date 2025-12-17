@@ -17,11 +17,12 @@ import com.lq.lib_api.HRouter
 
 @Route(path = "/main/login")
 class LoginActivity: ComponentActivity() {
-    @AutoWired(required = false)
-    var userName:String?=null
+    @AutoWired()
+    var userName:String = ""
 
-    @AutoWired(required = true)
+    @AutoWired
     var account :Int?=null
+
 
     @AutoWired
     var user: UserInfo?=null
@@ -38,7 +39,7 @@ class LoginActivity: ComponentActivity() {
     @Composable
     fun LoginScreen(){
         Column(modifier = Modifier.fillMaxSize().padding(88.dp)) {
-            Text(text = "登录信息", fontSize = 28.sp)
+            Text(text = "主页登录信息", fontSize = 28.sp)
             Text("userName: $userName")
             Text("account: $account")
             Text("user: $user")

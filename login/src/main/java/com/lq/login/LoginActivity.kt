@@ -19,11 +19,14 @@ import com.lq.lib_api.HRouter
 @Route(path = "/login/login")
 @RouteDeepLink(["myapp://login","https://myapp.day/login"])
 class LoginActivity: ComponentActivity() {
-    @AutoWired(required = false)
-    var userName:String?=null
+    @AutoWired()
+    var userName:String = "Ios"
 
-    @AutoWired(required = true)
+    @AutoWired
     var account :Int?=null
+
+    @AutoWired
+    lateinit var mock:String
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,9 +41,10 @@ class LoginActivity: ComponentActivity() {
     @Composable
     fun LoginScreen(){
         Column(modifier = Modifier.fillMaxSize().padding(88.dp)) {
-            Text(text = "登录信息", fontSize = 28.sp)
+            Text(text = "Login/Login登录信息", fontSize = 28.sp)
             Text("userName: $userName")
             Text("account: $account")
+            Text("mock: $mock")
         }
 
 

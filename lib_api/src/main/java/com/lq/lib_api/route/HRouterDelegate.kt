@@ -14,6 +14,7 @@ import com.lq.lib_api.degrade.DegradeManager
 import com.lq.lib_api.entity.DispatchResult
 import com.lq.lib_api.interceptor.RouteDispatcher
 import com.lq.lib_api.interceptor.RouteRequest
+import com.lq.lib_api.util.LogUtil
 import com.lq.lib_api.util.routeDegradeCoroutineHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -92,6 +93,7 @@ internal class HRouterDelegate(private val path: String) {
                         val realPath = result.request.path
                         setRouteMeta(realPath)
                         buildIntent(realPath)
+                        LogUtil.d("StartActivity: $routeMeta")
                         withContext(Dispatchers.Main){
                             startActivity()
                         }

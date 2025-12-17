@@ -30,7 +30,7 @@ class TestActivity : ComponentActivity() {
     @Composable
     fun TestScreen(){
         Column(modifier = Modifier.fillMaxSize().padding(88.dp)) {
-            Text(text = "登录信息", fontSize = 28.sp)
+            Text(text = "测试信息", fontSize = 28.sp)
             Text("userName: $userName")
             Text("account: $account")
         }

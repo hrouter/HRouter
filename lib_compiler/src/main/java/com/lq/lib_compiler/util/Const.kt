@@ -20,6 +20,8 @@ internal object Const {
 
     private const val META_PACKAGE = "com.lq.lib_annotation.data"
 
+    private const val AUTO_WIRED_TYPE_ADAPTER = "com.lq.lib_api.autowired"
+
     val RouteRootClassName = ClassName(ROOT_PACKAGE,"IRouteRoot")
 
     val RouteGroupClassName = ClassName(ROOT_PACKAGE,"IRouteGroup")
@@ -35,6 +37,8 @@ internal object Const {
     val DegradeRegisterClassName = ClassName(DEGRADE_PACKAGE,"IDegradeRegister")
 
     val DeepLinkRegisterClassName = ClassName(DEEPLINK_PACKAGE,"IDeepLinkRegister")
+
+    val AutoWiredTypeAdapterClassName = ClassName(AUTO_WIRED_TYPE_ADAPTER,AUTO_WIRED_ADAPTER_NAME)
 
     val MutableListClassName = ClassName("kotlin.collections","MutableList")
 
@@ -58,6 +62,8 @@ internal object Const {
     const val DEEPLINK_SHORT_NAME = "RouteDeepLink"
 
     const val ROUTE_SHORT_NAME = "Route"
+
+    const val AUTO_WIRED_ADAPTER_NAME = "AutoWiredTypeAdapters"
 
     const val ROUTE_CONTRACT = "META-INF/route"
 

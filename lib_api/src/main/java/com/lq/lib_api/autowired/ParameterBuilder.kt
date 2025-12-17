@@ -32,12 +32,44 @@ class ParameterBuilder {
         bundle.putBoolean(key,value)
     }
 
+    fun short(key:String,value:Short){
+        bundle.putShort(key,value)
+    }
+
     fun parcelable(key:String,value: Parcelable){
         bundle.putParcelable(key,value)
     }
 
     fun serializable(key:String ,value: Serializable){
         bundle.putSerializable(key,value)
+    }
+
+    fun floatArray(key:String,value: FloatArray){
+        bundle.putFloatArray(key,value)
+    }
+
+    fun intArray(key:String,value: IntArray){
+        bundle.putIntArray(key,value)
+    }
+
+    fun longArray(key:String,value: LongArray){
+        bundle.putLongArray(key,value)
+    }
+
+    fun doubleArray(key:String,value: DoubleArray){
+        bundle.putDoubleArray(key,value)
+    }
+
+    fun shortArray(key:String,value: ShortArray){
+        bundle.putShortArray(key,value)
+    }
+
+    fun booleanArray(key:String,value: BooleanArray){
+        bundle.putBooleanArray(key,value)
+    }
+
+    fun charArray(key:String,value: CharArray){
+        bundle.putCharArray(key,value)
     }
 
     infix fun String.to(value:Any?){
@@ -52,6 +84,16 @@ class ParameterBuilder {
             is Float -> float(key,value)
             is Long->long(key,value)
             is Boolean ->boolean(key,value)
+            is Short -> short(key,value)
+
+            is FloatArray -> floatArray(key,value)
+            is IntArray -> intArray(key,value)
+            is LongArray -> longArray(key,value)
+            is DoubleArray -> doubleArray(key,value)
+            is ShortArray -> shortArray(key,value)
+            is BooleanArray ->booleanArray(key,value)
+            is CharArray -> charArray(key,value)
+
             is Parcelable ->parcelable(key,value)
             is Serializable ->serializable(key,value)
             else-> throw PutTypeIllegalException("$value")
