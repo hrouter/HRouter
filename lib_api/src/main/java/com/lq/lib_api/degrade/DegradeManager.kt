@@ -8,36 +8,62 @@ import com.lq.lib_api.util.LogUtil
 
 internal object DegradeManager {
 
-    private val degrades = mutableSetOf<IRouteDegrade>()
+    private val degrades = mutableListOf<IRouteDegrade>()
 
+    private val data = mutableListOf<DegradeMeta>()
 
-    fun addDegrade(degrade: IRouteDegrade){
+    fun addDegrade(degrade: IRouteDegrade) {
         degrades.add(degrade)
     }
 
-    fun init(context: Context){
+    fun init(context: Context) {
         val clazz = Class.forName("com.lq.router.DegradeIndex")
         val instance = clazz.getField("INSTANCE").get(null) // 拿到 object 的单例实例
         val method = clazz.getDeclaredMethod("getRoots")
         val registers = method.invoke(instance) as List<IDegradeRegister>
-         val data = mutableListOf<DegradeMeta>()
 
         registers.forEach {
             it.register(data)
         }
-        data.sortedBy { it.priority }.toMutableList().forEach {
-            DegradeFactory.create(context,it.className).apply {
-                addDegrade(this)
+        val sortedDegrades = data
+            .sortedBy { it.priority }  // 按 priority 升序（数值小的先执行）
+            .map { DegradeFactory.create(context, it.className) }
+
+        degrades.clear()
+        degrades.addAll(sortedDegrades)
+    }
+
+    fun handleDegrade(context: DegradeContext,path:String, exception: Throwable) {
+        if(!context.markVisited(path)) {
+            LogUtil.i("Degrade Handler Loop :${path}")
+            return
+        }
+        try {
+            for (degrade in getInterceptorsForRequest(path)) {
+                val handled = degrade.onLost(path, "${exception.message}")
+                if (handled) return
             }
+        } catch (e: Exception) {
+            LogUtil.e("DegradeException", "Degrade Handler Exception : ${e.message}")
         }
     }
 
-    fun handleDegrade(){
-        LogUtil.d("降级处理")
-        for (degrade in degrades){
-//            val handled = degrade.onLost(degrade,reason)
-//            if(handled) return
+
+    fun getInterceptorsForRequest(requestPath: String): List<IRouteDegrade> {
+        return degrades.filterIndexed { index, _ ->
+            val meta = data.getOrNull(index) ?: return@filterIndexed false
+            pathMatches(requestPath, meta.path)
         }
+    }
+
+    private fun pathMatches(requestPath: String, interceptorPath: String): Boolean {
+        if (interceptorPath == requestPath) return true
+        if (interceptorPath.endsWith("/*") &&
+            requestPath.startsWith(interceptorPath.removeSuffix("/*"))
+        ) return true
+        if (interceptorPath == "*") return true
+        if (interceptorPath == "") return true
+        return false
     }
 
 }

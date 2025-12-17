@@ -18,7 +18,7 @@ class LoginInterceptor : IRouteInterceptor {
 
     override suspend fun intercept(chain: InterceptorChain): RouteAction {
         val isLogin = false
-        if (!isLogin) return RouteAction.Redirect(chain.request.copy(path = "/login/test"))
+        if (!isLogin) return RouteAction.Redirect(chain.request.copy(path = "/login/111"))
         return chain.proceed(chain.request)
     }
 

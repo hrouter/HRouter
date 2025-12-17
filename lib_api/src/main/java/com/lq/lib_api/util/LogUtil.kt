@@ -9,7 +9,7 @@ object LogUtil {
         Log.v(tag,msg)
     }
 
-    fun i(tag: String,msg: String) = Log.i(tag,msg)
+    fun i(msg: String,tag: String ?= logTag) = Log.i(tag,msg)
 
     fun d(msg: String,tag:String?=logTag) = Log.d(tag,msg)
 

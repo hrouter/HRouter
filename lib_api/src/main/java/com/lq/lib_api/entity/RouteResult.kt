@@ -7,6 +7,5 @@ sealed class RouteAction {
     object Continue : RouteAction()
     data class Fail(val reason: String) : RouteAction()
     data class Redirect(val newRequest: RouteRequest) : RouteAction()
-
     object Success : RouteAction()
 }

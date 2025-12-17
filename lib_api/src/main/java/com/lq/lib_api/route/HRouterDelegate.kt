@@ -5,22 +5,21 @@ import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.core.app.ActivityOptionsCompat
 import com.lq.lib_annotation.data.RouteMeta
 import com.lq.lib_api.autowired.ParameterBuilder
+import com.lq.lib_api.degrade.DegradeContext
 import com.lq.lib_api.degrade.DegradeManager
 import com.lq.lib_api.entity.DispatchResult
 import com.lq.lib_api.interceptor.RouteDispatcher
 import com.lq.lib_api.interceptor.RouteRequest
-import com.lq.lib_api.util.LogUtil
-import com.lq.lib_api.util.showToast
+import com.lq.lib_api.util.routeDegradeCoroutineHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import java.util.concurrent.atomic.AtomicBoolean
+import kotlinx.coroutines.withContext
 
 internal class HRouterDelegate(private val path: String) {
     private val bundle = Bundle()
@@ -29,13 +28,13 @@ internal class HRouterDelegate(private val path: String) {
     private var enterAnim: Int? = null
     private var exitAnim: Int? = null
     private lateinit var routeMeta: RouteMeta
-    private lateinit var intentBuilder : IntentBuilder
+    private lateinit var intentBuilder: IntentBuilder
 
 
     /*
     * 获取路由元数据
     * */
-    fun setRouteMeta(path: String): HRouterDelegate{
+    fun setRouteMeta(path: String): HRouterDelegate {
         routeMeta = RouteHelper.findGroup(path)
         return this
     }
@@ -62,7 +61,7 @@ internal class HRouterDelegate(private val path: String) {
     }
 
     private fun buildIntent(path: String): IntentBuilder {
-        if(::routeMeta.isInitialized.not()) setRouteMeta(path)
+        if (::routeMeta.isInitialized.not()) setRouteMeta(path)
         return IntentBuilder(context).apply {
             set(routeMeta)
             put(bundle)
@@ -77,23 +76,35 @@ internal class HRouterDelegate(private val path: String) {
     * */
     fun navigate() {
         intentBuilder = buildIntent(path)
+
         val path = intentBuilder.getPath() ?: return
-        CoroutineScope(SupervisorJob() + Dispatchers.IO).launch{
-            when(val result = RouteDispatcher.dispatch(RouteRequest(path, context, bundle))){
-                is DispatchResult.Success -> {
-                    LogUtil.d("realPath:${result.request.path}")
-                    setRouteMeta(result.request.path)
-                    intentBuilder = buildIntent(result.request.path)
-                    startActivity()
-                }
-                is DispatchResult.Fail -> {
-                    showToast(context,result.reason)
-                    return@launch
+
+        val degradeContext = DegradeContext(path)
+
+        try {
+
+            val scope = CoroutineScope(Dispatchers.IO + SupervisorJob() + routeDegradeCoroutineHandler(degradeContext,path))
+            val request = RouteRequest(path,context,bundle)
+
+            scope.launch {
+                when(val result= RouteDispatcher.dispatch(request)){
+                    is DispatchResult.Success->{
+                        val realPath = result.request.path
+                        setRouteMeta(realPath)
+                        buildIntent(realPath)
+                        withContext(Dispatchers.Main){
+                            startActivity()
+                        }
+                    }
+                    is DispatchResult.Fail ->{
+                        DegradeManager.handleDegrade(degradeContext,path, Exception(result.reason))
+                    }
                 }
             }
+        }catch (e: Exception){
+            DegradeManager.handleDegrade(degradeContext,path, Exception(e.message))
         }
     }
-
 
 
     /*
@@ -108,15 +119,13 @@ internal class HRouterDelegate(private val path: String) {
         if (context is Application) {
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             launcher?.launch(intent, options) ?: context.startActivity(intent)
-        }
-
-        else if (context is Activity) {
+        } else if (context is Activity) {
             val activity = context as Activity
             launcher?.launch(intent, options) ?: activity.startActivity(intent, options?.toBundle())
         }
     }
 
-    private fun createOptions() : ActivityOptionsCompat? {
+    private fun createOptions(): ActivityOptionsCompat? {
         return if (enterAnim != null && exitAnim != null && context is Activity) {
             ActivityOptionsCompat.makeCustomAnimation(
                 context,
