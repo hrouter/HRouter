@@ -25,7 +25,7 @@ class LoginActivity: ComponentActivity() {
 
 
     @AutoWired
-    var user: UserInfo?=null
+    lateinit var user: UserInfo
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

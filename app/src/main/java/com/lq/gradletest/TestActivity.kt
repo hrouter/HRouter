@@ -12,10 +12,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.lq.lib_annotation.Route
-import com.lq.lib_annotation.RouteDeepLink
+import com.lq.lib_annotation.DeepLink
 
-@Route(path = "/main/test")
-@RouteDeepLink(["myapp://test","http://www.google.com:8090/"])
+@Route(path = "/login/test")
+@DeepLink(schemes = ["myapp"], hosts = ["com.lq.mock","main/test"])
 class TestActivity : ComponentActivity() {
 
     var userName: String?="gg"

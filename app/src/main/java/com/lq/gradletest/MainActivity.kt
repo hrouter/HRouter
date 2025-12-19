@@ -15,15 +15,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.lifecycleScope
 import com.lq.lib_annotation.Route
-import com.lq.lib_annotation.RouteDeepLink
+import com.lq.lib_annotation.DeepLink
 import com.lq.lib_api.HRouter
 import com.lq.gradletest.ui.theme.GradleTestTheme
-import kotlinx.coroutines.launch
 
 @Route(path = "/main/main")
-@RouteDeepLink(["myapp://main","http://www.baidu.com/main"])
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,15 +51,15 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
 }
 
 fun toLogin(){
-    HRouter.build("/login/login").withParams {
+    HRouter.build("/main/login").withParams {
 //       "userName" to "Android"
 //        "account" to 100
         "mock" to "Mock"
+        "user" to UserInfo("Android","123456",10f)
     }.navigate()
 }
 
 fun toTest(context: Context){
-    HRouter.buildUri("https://myapp.day/login").withContext(context).navigate()
 }
 
 

@@ -13,17 +13,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.lq.lib_annotation.AutoWired
 import com.lq.lib_annotation.Route
-import com.lq.lib_annotation.RouteDeepLink
+import com.lq.lib_annotation.DeepLink
 import com.lq.lib_api.HRouter
 
 
 @Route(path = "/login/degrade")
-@RouteDeepLink(["myapp://login","https://myapp.day/login"])
 class LoginDegradeActivity: ComponentActivity() {
-    @AutoWired(required = false)
+    @AutoWired
     var userName:String?=null
 
-    @AutoWired(required = true)
+    @AutoWired
     var account :Int?=null
 
 

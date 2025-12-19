@@ -44,5 +44,50 @@ internal object RouteDeepLinkUtil {
         return data
     }
 
+    /**
+     * 笛卡尔积生成
+     * 生成 schemes × hosts × paths 的所有组合
+     */
+     fun generateDeepLinkUrls(
+        schemes: List<String>,
+        hosts: List<String>,
+        paths: List<String>
+    ): List<String> {
+        // 处理默认值逻辑
+        val effectiveSchemes = if (schemes.isEmpty()) listOf("") else schemes
+        val effectiveHosts = if (hosts.isEmpty()) listOf("") else hosts
+        val effectivePaths = if (paths.isEmpty()) listOf("") else paths
+
+        return effectiveSchemes.flatMap { scheme ->
+            effectiveHosts.flatMap { host ->
+                effectivePaths.map { path ->
+                    buildDeepLinkUrl(scheme, host, path)
+                }
+            }
+        }
+    }
+
+    private fun buildDeepLinkUrl(scheme: String, host: String, path: String): String {
+        return when {
+            // scheme://host/path 格式
+            scheme.isNotEmpty() && host.isNotEmpty() && path.isNotEmpty() ->
+                "$scheme://$host${if (path.startsWith("/")) path else "/$path"}"
+
+            // scheme://host 格式（无path）
+            scheme.isNotEmpty() && host.isNotEmpty() -> "$scheme://$host"
+
+            // scheme:path 格式（如 myapp:home）
+            scheme.isNotEmpty() && path.isNotEmpty() ->
+                "$scheme:${if (path.startsWith("/")) path.substring(1) else path}"
+
+            // 只有 path（作为相对路径）
+            path.isNotEmpty() -> path
+
+            // 只有 host
+            host.isNotEmpty() -> host
+
+            else -> scheme
+        }
+    }
 
 }

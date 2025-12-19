@@ -28,10 +28,31 @@ object HRouter {
         return RouterBuilder(path).withContext(app)
     }
 
+
+    /*
+    * low 版
+    * */
+    fun buildUriWithNoParameters(uri:String): RouterBuilder {
+        val path = DeepLinkManager.getPathWithNoParameters(uri)
+        if(path.isNullOrEmpty())  throw UriParseIllegalException(uri)
+        val routerBuilder = RouterBuilder(path).withContext(app)
+        return routerBuilder
+    }
+
+    /*
+   * todo 这里必须优先重构@Route注解 使其模板化
+   * */
     fun buildUri(uri:String): RouterBuilder {
         val path = DeepLinkManager.getPathFromUri(uri)
         if(path.isNullOrEmpty())  throw UriParseIllegalException(uri)
-        return RouterBuilder(path).withContext(app)
+        val routerBuilder = RouterBuilder(path).withContext(app)
+          val uriParameters = DeepLinkManager.getParameters(uri)
+          uriParameters.forEach { (key, value) ->
+              routerBuilder.withParams {
+                  key to value
+              }
+          }
+        return routerBuilder
     }
 
     fun inject(target: Any){

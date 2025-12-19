@@ -23,35 +23,26 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 internal class HRouterDelegate(private val path: String) {
+
     private val bundle = Bundle()
     private lateinit var context: Context
     private var launcher: ActivityResultLauncher<Intent>? = null
     private var enterAnim: Int? = null
     private var exitAnim: Int? = null
-    private lateinit var routeMeta: RouteMeta
-    private lateinit var intentBuilder: IntentBuilder
 
-
-    /*
-    * 获取路由元数据
-    * */
-    fun setRouteMeta(path: String): HRouterDelegate {
-        routeMeta = RouteHelper.findGroup(path)
-        return this
-    }
-
+    /** 链式设置参数 */
     fun withParams(block: ParameterBuilder.() -> Unit): HRouterDelegate {
         bundle.putAll(ParameterBuilder().apply(block).bundle)
         return this
     }
 
-    fun withLauncher(launcher: ActivityResultLauncher<Intent>): HRouterDelegate {
-        this.launcher = launcher
+    fun withContext(context: Context): HRouterDelegate {
+        this.context = context
         return this
     }
 
-    fun withContext(context: Context): HRouterDelegate {
-        this.context = context
+    fun withLauncher(launcher: ActivityResultLauncher<Intent>): HRouterDelegate {
+        this.launcher = launcher
         return this
     }
 
@@ -61,8 +52,9 @@ internal class HRouterDelegate(private val path: String) {
         return this
     }
 
-    private fun buildIntent(path: String): IntentBuilder {
-        if (::routeMeta.isInitialized.not()) setRouteMeta(path)
+    /** 构建 Intent，仅在本地生成 */
+    private fun buildIntent(targetPath: String): IntentBuilder {
+        val routeMeta = RouteHelper.findGroup(targetPath)
         return IntentBuilder(context).apply {
             set(routeMeta)
             put(bundle)
@@ -70,74 +62,43 @@ internal class HRouterDelegate(private val path: String) {
         }
     }
 
-
-    /*
-    * 如果是重定向 直接启动activity，不进行拦截，降级
-    * todo 需测试
-    * */
+    /** 启动流程，负责 dispatch 调度和最终跳转 */
     fun navigate() {
-        intentBuilder = buildIntent(path)
-
-        val path = intentBuilder.getPath() ?: return
-
+        val request = RouteRequest(path, context, bundle)
         val degradeContext = DegradeContext(path)
 
-        try {
-
-            val scope = CoroutineScope(Dispatchers.IO + SupervisorJob() + routeDegradeCoroutineHandler(degradeContext,path))
-            val request = RouteRequest(path,context,bundle)
-
-            scope.launch {
-                when(val result= RouteDispatcher.dispatch(request)){
-                    is DispatchResult.Success->{
-                        val realPath = result.request.path
-                        setRouteMeta(realPath)
-                        buildIntent(realPath)
-                        LogUtil.d("StartActivity: $routeMeta")
-                        withContext(Dispatchers.Main){
-                            startActivity()
-                        }
-                    }
-                    is DispatchResult.Fail ->{
-                        DegradeManager.handleDegrade(degradeContext,path, Exception(result.reason))
-                    }
-                }
+        RouteDispatcher.dispatchAsync(request,
+            onSuccess = { realPath ->
+                val intentBuilder = buildIntent(realPath)
+                startActivity(intentBuilder)
+            },
+            onFail = { reason ->
+                DegradeManager.handleDegrade(degradeContext, path, Exception(reason))
             }
-        }catch (e: Exception){
-            DegradeManager.handleDegrade(degradeContext,path, Exception(e.message))
-        }
+        )
     }
 
-
-    /*
-    * context 是Activity 且自带动画时，取消系统动画
-    * context 是 application 时，此时启动另一个activity需要添加新栈
-    * todo launcher和动画 不冲突
-    *  */
-    private fun startActivity() {
+    /** 仅处理 activity 启动及动画，状态局部化 */
+    private fun startActivity(intentBuilder: IntentBuilder) {
         val intent = intentBuilder.get()
         val options = createOptions()
 
-        if (context is Application) {
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            launcher?.launch(intent, options) ?: context.startActivity(intent)
-        } else if (context is Activity) {
-            val activity = context as Activity
-            launcher?.launch(intent, options) ?: activity.startActivity(intent, options?.toBundle())
+        when (context) {
+            is Application -> {
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                launcher?.launch(intent, options) ?: context.startActivity(intent)
+            }
+            is Activity -> {
+                val activity = context as Activity
+                launcher?.launch(intent, options) ?: activity.startActivity(intent, options?.toBundle())
+            }
         }
     }
 
+    /** 构建动画选项 */
     private fun createOptions(): ActivityOptionsCompat? {
         return if (enterAnim != null && exitAnim != null && context is Activity) {
-            ActivityOptionsCompat.makeCustomAnimation(
-                context,
-                enterAnim!!,
-                exitAnim!!
-            )
-        } else {
-            null
-        }
+            ActivityOptionsCompat.makeCustomAnimation(context, enterAnim!!, exitAnim!!)
+        } else null
     }
-
-
 }

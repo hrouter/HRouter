@@ -8,7 +8,7 @@ annotation class Route(val path: String)
 
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-annotation class AutoWired(val required:Boolean = true)
+annotation class AutoWired()
 
 
 @Target(AnnotationTarget.CLASS)
@@ -23,4 +23,4 @@ annotation class RouteDegrade(val path: String ="", val priority:Int = 0)
 
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.SOURCE)
-annotation class RouteDeepLink(val deepLink : Array<String> = [])
+annotation class DeepLink(val schemes:Array<String>,val hosts : Array<String>,val paths :Array<String> = [])

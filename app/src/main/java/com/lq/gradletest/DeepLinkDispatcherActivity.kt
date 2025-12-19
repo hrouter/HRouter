@@ -17,24 +17,16 @@ class DeepLinkDispatcherActivity: ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent {
-            DispatcherScreen()
-        }
         getInfo()
     }
 
     private fun getInfo(){
-        val uri = intent?.data
-        HRouter.buildUri(uri.toString()).withContext(this).navigate()
+        intent?.data?.let { uri ->
+            HRouter.buildUriWithNoParameters(uri.toString())
+                .withContext(this)
+                .navigate()
+        }
+        finish()
     }
 }
 
-@Composable
-fun DispatcherScreen(){
-    @Composable
-    fun TestScreen(){
-        Column(modifier = Modifier.fillMaxSize().padding(128.dp)) {
-            Text(text = "DeepLink", fontSize = 48.sp)
-        }
-    }
-}

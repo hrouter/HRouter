@@ -1,6 +1,7 @@
 package com.lq.hrouter_plugin
 
 import org.gradle.api.DefaultTask
+import org.gradle.api.GradleException
 import org.gradle.api.tasks.TaskAction
 import java.io.File
 
@@ -14,10 +15,14 @@ abstract class ContractTask : DefaultTask(){
 
     @TaskAction
     fun runAction(){
+        val routeClasses = findUtil("route")
+        generateHRouteIndex(routeClasses)
+
+        val deeplinkClasses = findUtil("deeplink")
+        generateDeepLinkIndex(deeplinkClasses)
+
         generateInterceptorIndex(findUtil("interceptor"))
         generateDegradeIndex(findUtil("degrade"))
-        generateHRouteIndex(findUtil("route"))
-        generateDeepLinkIndex(findUtil("deeplink"))
     }
 
 
@@ -34,8 +39,6 @@ abstract class ContractTask : DefaultTask(){
             }
         }
 
-
-        println("✅ 生成成功，包含 ${rootClassNames.size} 个  类")
         return rootClassNames
     }
 
@@ -65,8 +68,6 @@ abstract class ContractTask : DefaultTask(){
 
         outputFile.writeText(fileContent)
 
-        println("✅ HRouterIndex.kt 已生成，包含 ${rootClassNames.size} 个 Root 类")
-        println("路径: ${outputFile.absolutePath}")
     }
 
     private fun generateInterceptorIndex(classNames: MutableSet<String>){
@@ -93,8 +94,6 @@ abstract class ContractTask : DefaultTask(){
 
         outputFile.writeText(fileContent)
 
-        println("✅ InterceptorIndex.kt 已生成，包含 ${classNames.size} 个 Interceptor 类")
-        println("路径: ${outputFile.absolutePath}")
     }
 
     private fun generateDegradeIndex(classNames: MutableSet<String>){
@@ -121,8 +120,6 @@ abstract class ContractTask : DefaultTask(){
 
         outputFile.writeText(fileContent)
 
-        println("✅ HRouterIndex.kt 已生成，包含 ${classNames.size} 个 Degrade 类")
-        println("路径: ${outputFile.absolutePath}")
     }
 
     private fun generateDeepLinkIndex(classNames: MutableSet<String>){
@@ -149,8 +146,6 @@ abstract class ContractTask : DefaultTask(){
 
         outputFile.writeText(fileContent)
 
-        println("✅ DeepLinkIndex.kt 已生成，包含 ${classNames.size} 个 DeepLink 类")
-        println("路径: ${outputFile.absolutePath}")
     }
 
 }

@@ -8,6 +8,7 @@ import com.lq.lib_compiler.util.getModuleNameCapitalize
 import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
+import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
@@ -28,9 +29,12 @@ internal class RouteDeepLinkPart (private val environment: SymbolProcessorEnviro
                     annotation.shortName.asString() == Const.DEEPLINK_SHORT_NAME
                 }
                 val classInfo = it.qualifiedName?.asString() ?: return@forEach
-                val links = symbol.arguments.firstOrNull()?.value as? List<*> ?: emptyList<Any?>()
-                val linkList = links.filterIsInstance<String>()
-                environment.logger.warn("Symbol DeepLink : $classInfo  $links")
+
+                val schemes = getAnnotationArgumentArray(symbol, "schemes")
+                val hosts = getAnnotationArgumentArray(symbol, "hosts")
+                val paths = getAnnotationArgumentArray(symbol, "paths")
+
+                val linkList = RouteDeepLinkUtil.generateDeepLinkUrls(schemes,hosts,paths)
                 RouteDeepLinkUtil.classToLinks(classInfo,linkList.toTypedArray())
             }
 
@@ -63,6 +67,21 @@ internal class RouteDeepLinkPart (private val environment: SymbolProcessorEnviro
         }
         MetaInfUtil.writeMetaInf(codeGenerator,"${Const.H_ROUTER_PACKAGE}.$className",moduleName,Const.DEEPLINK_CONTRACT)
         RouteDeepLinkUtil.clear()
+    }
+
+    private fun getAnnotationArgumentArray(
+        annotation: KSAnnotation,
+        argumentName: String
+    ): List<String> {
+        return annotation.arguments
+            .firstOrNull { it.name?.asString() == argumentName }
+            ?.let { arg ->
+                when (val value = arg.value) {
+                    is List<*> -> value.filterIsInstance<String>()
+                    is Array<*> -> value.filterIsInstance<String>().toList()
+                    else -> emptyList()
+                }
+            } ?: emptyList()
     }
 
 }

@@ -20,15 +20,19 @@ class HRouterPlugin : Plugin<Project> {
                 androidExt?.sourceSets?.getByName("main")?.kotlin?.srcDir(generatedDir)*/
                 project.plugins.apply("com.google.devtools.ksp")
 
-                val buildRoute = target.tasks.register<ContractTask>("buildRoute", ContractTask::class.java) {
+                val buildRoute = target.tasks.register("buildRoute", ContractTask::class.java) {
                     group = "buildDebug"
                     description = "构建路由索引"
                 }
 
+                val checkConflictTask = target.tasks.register("checkRouteConflicts", CheckConflictTask::class.java)
+
                 // 确保在 KSP 之后运行，且避免循环
                 target.tasks.matching { it.name == "kspDebugKotlin" }.configureEach {
                     finalizedBy(buildRoute)
+                    finalizedBy(checkConflictTask)
                 }
+
             }
         }
 

@@ -1,7 +1,7 @@
 package com.lq.lib_compiler.util
 
 import com.lq.lib_annotation.Route
-import com.lq.lib_annotation.RouteDeepLink
+import com.lq.lib_annotation.DeepLink
 import com.lq.lib_annotation.RouteDegrade
 import com.lq.lib_annotation.RouterInterceptor
 import com.squareup.kotlinpoet.ClassName
@@ -52,14 +52,14 @@ internal object Const {
 
     val InterceptorQualifiedName = RouterInterceptor::class.qualifiedName!!
 
-    val DeepLinkQualifiedName = RouteDeepLink::class.qualifiedName!!
+    val DeepLinkQualifiedName = DeepLink::class.qualifiedName!!
 
 
     const val DEGRADE_SHORT_NAME = "RouteDegrade"
 
     const val INTERCEPTOR_SHORT_NAME = "RouterInterceptor"
 
-    const val DEEPLINK_SHORT_NAME = "RouteDeepLink"
+    const val DEEPLINK_SHORT_NAME = "DeepLink"
 
     const val ROUTE_SHORT_NAME = "Route"
 

@@ -35,7 +35,6 @@ internal class AutoWiredVisitor(
 
         classDeclaration.getAllProperties().forEach { property ->
             val symbol = property.annotations.find { it.shortName.asString() == "AutoWired" } ?: return@forEach
-            val required = symbol.arguments.first().value as Boolean
             val injectedName = property.simpleName.asString()
 
             val type = property.type.resolve()
