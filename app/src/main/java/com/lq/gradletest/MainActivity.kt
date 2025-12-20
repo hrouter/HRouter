@@ -51,7 +51,7 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
 }
 
 fun toLogin(){
-    HRouter.build("/main/login").withParams {
+    HRouter.build("/login/test").withParams {
 //       "userName" to "Android"
 //        "account" to 100
         "mock" to "Mock"

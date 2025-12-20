@@ -14,6 +14,7 @@ jetbrainsKotlinJvm = "2.1.20"
 kotlinpoet = "2.1.0"
 appcompat = "1.7.0"
 material = "1.12.0"
+hrouter = "0.0.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -39,6 +40,11 @@ kotlinpoet-ksp = { module = "com.squareup:kotlinpoet-ksp", version.ref = "kotlin
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 
+#hrouter
+hrouter-annotation = { group = "com.lq.hrouter" , name="lib_annotation", version.ref = "hrouter" }
+hrouter-api = { group = "com.lq.hrouter" , name = "lib_api", version.ref = "hrouter"}
+hrouter-compiler = { group = "com.lq.hrouter", name = "lib_compiler", version.ref = "hrouter"}
+
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
@@ -46,4 +52,5 @@ kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "ko
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "jetbrainsKotlinJvm" }
 android-library = { id = "com.android.library", version.ref = "agp" }
+hrouter-plugin = { id = "com.lq.hrouter", version.ref = "hrouter"}
 

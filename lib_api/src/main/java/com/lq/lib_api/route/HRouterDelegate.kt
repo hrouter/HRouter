@@ -21,6 +21,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.IOException
 
 internal class HRouterDelegate(private val path: String) {
 
@@ -65,15 +66,15 @@ internal class HRouterDelegate(private val path: String) {
     /** 启动流程，负责 dispatch 调度和最终跳转 */
     fun navigate() {
         val request = RouteRequest(path, context, bundle)
-        val degradeContext = DegradeContext(path)
 
         RouteDispatcher.dispatchAsync(request,
             onSuccess = { realPath ->
                 val intentBuilder = buildIntent(realPath)
+                LogUtil.d("navigate : $realPath")
                 startActivity(intentBuilder)
             },
             onFail = { reason ->
-                DegradeManager.handleDegrade(degradeContext, path, Exception(reason))
+                DegradeManager.handleDegrade( path, Exception(reason))
             }
         )
     }

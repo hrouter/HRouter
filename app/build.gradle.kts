@@ -61,13 +61,13 @@ android {
 }
 
 dependencies {
-    implementation("com.lq.hrouter:lib_annotation:1.0.0")
-    implementation("com.lq.hrouter:lib_api:1.0.0")
-    ksp("com.lq.hrouter:lib_compiler:1.0.0")
-//    implementation(project(":lib_annotation"))
-//    implementation(project(":lib_api"))
-//    implementation(project(":login"))
+//    implementation(libs.hrouter.annotation)
+//    implementation(libs.hrouter.api)
+//    ksp(libs.hrouter.compiler)
+    implementation(project(":lib_annotation"))
+    implementation(project(":lib_api"))
     ksp(project(":lib_compiler"))
+    implementation(project(":login"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

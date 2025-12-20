@@ -1,6 +1,7 @@
 package com.lq.lib_api.interceptor
 
 import com.lq.lib_api.degrade.DegradeContext
+import com.lq.lib_api.degrade.DegradeManager
 import com.lq.lib_api.entity.DispatchResult
 import com.lq.lib_api.entity.RouteAction
 import com.lq.lib_api.util.routeDegradeCoroutineHandler
@@ -25,10 +26,9 @@ object RouteDispatcher {
         onSuccess: (realPath: String) -> Unit,
         onFail: (reason: String) -> Unit
     ) {
-        val degradeContext = DegradeContext(request.path)
 
         // 使用协程在 IO 线程调度
-        CoroutineScope(Dispatchers.IO + SupervisorJob() + routeDegradeCoroutineHandler(degradeContext, request.path))
+        CoroutineScope(Dispatchers.IO + SupervisorJob() + routeDegradeCoroutineHandler(request.path))
             .launch {
                 try {
                     when (val result = dispatch(request)) {

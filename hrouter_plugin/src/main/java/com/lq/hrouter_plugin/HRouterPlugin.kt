@@ -25,12 +25,12 @@ class HRouterPlugin : Plugin<Project> {
                     description = "构建路由索引"
                 }
 
-                val checkConflictTask = target.tasks.register("checkRouteConflicts", CheckConflictTask::class.java)
+//                val checkConflictTask = target.tasks.register("checkRouteConflicts", CheckConflictTask::class.java)
 
                 // 确保在 KSP 之后运行，且避免循环
                 target.tasks.matching { it.name == "kspDebugKotlin" }.configureEach {
                     finalizedBy(buildRoute)
-                    finalizedBy(checkConflictTask)
+//                    finalizedBy(checkConflictTask)
                 }
 
             }

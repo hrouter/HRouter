@@ -16,6 +16,8 @@ internal object DegradeManager {
         degrades.add(degrade)
     }
 
+    private val degradeContext = DegradeContext()
+
     fun init(context: Context) {
         val clazz = Class.forName("com.lq.router.DegradeIndex")
         val instance = clazz.getField("INSTANCE").get(null) // 拿到 object 的单例实例
@@ -33,17 +35,20 @@ internal object DegradeManager {
         degrades.addAll(sortedDegrades)
     }
 
-    fun handleDegrade(context: DegradeContext,path:String, exception: Throwable) {
-        if(!context.markVisited(path)) {
+    fun handleDegrade(path:String, exception: Throwable) {
+        LogUtil.i("Degrade Handler :${path}")
+        if(!degradeContext.markVisited(path)) {
             LogUtil.i("Degrade Handler Loop :${path}")
+            degradeContext.clearVisited()
             return
         }
         try {
             for (degrade in getInterceptorsForRequest(path)) {
                 val handled = degrade.onLost(path, "${exception.message}")
-                if (handled) return
+                if (handled)  return
             }
         } catch (e: Exception) {
+            degradeContext.clearVisited()
             LogUtil.e("DegradeException", "Degrade Handler Exception : ${e.message}")
         }
     }

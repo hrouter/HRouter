@@ -17,6 +17,7 @@ import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.MemberName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.TypeSpec
 import kotlin.collections.iterator
@@ -43,7 +44,7 @@ internal class RouteSymbolProcessorPart(environment: SymbolProcessorEnvironment)
                 if(routeMap.containsKey(group) && routeMap[group]?.contains(path) == true){
                     logger.error(
                         "HRouter ERROR: Route '$group' '$path' is duplicated.\n" +
-                                " - First: ${routeMap[group]} \n" +
+                                " - First: ${routeMap[group]?.get(path)} \n" +
                                 " - Second: $classInfo"
                     )
                     return
@@ -94,14 +95,18 @@ internal class RouteSymbolProcessorPart(environment: SymbolProcessorEnvironment)
             val function = FunSpec.builder("loadInto").addModifiers(KModifier.OVERRIDE)
                 .addParameter("groupMap",Const.MutableMapClassName.parameterizedBy(
                     Const.StringClassName,routeMetaClass))
-
+                .addParameter("path",Const.StringClassName)
+            val safeLoadPathMember = MemberName(
+                Const.SAFE_LOAD_PATH,
+                Const.SAFE_LOAD_PATH_NAME
+            )
             for ((path,classInfo) in pathMap){
                 val destinationClassName = ClassName.bestGuess(classInfo)
                 val routeMetaInstance = CodeBlock.of(
                     "%T(%S, %T::class.java, %S)",
                     routeMetaClass, path, destinationClassName, groupName
                 )
-                function.addStatement("groupMap[%S] = %L", path, routeMetaInstance)
+                function.addStatement("%M(groupMap,path,%L)",safeLoadPathMember,routeMetaInstance)
             }
             val fileSpec = FileSpec.builder(Const.H_ROUTER_PACKAGE, className)
                 .addType(TypeSpec.classBuilder(className).addSuperinterface(groupInterface).addFunction(function.build()).build()).build()

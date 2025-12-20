@@ -14,7 +14,7 @@ repositories {
 }
 
 //dependencies {
-//    implementation("com.lq.hrouter:lib_annotation:1.0.0")
+//    implementation("com.lq.hrouter:lib_annotation:0.0.1")
 //}
 
 gradlePlugin {

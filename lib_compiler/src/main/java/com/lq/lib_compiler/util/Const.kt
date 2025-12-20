@@ -72,4 +72,8 @@ internal object Const {
     const val DEGRADE_CONTRACT = "META-INF/degrade"
 
     const val DEEPLINK_CONTRACT = "META-INF/deeplink"
+
+    const val SAFE_LOAD_PATH = "com.lq.lib_api.util"
+
+    const val SAFE_LOAD_PATH_NAME = "safeLoadPath"
 }

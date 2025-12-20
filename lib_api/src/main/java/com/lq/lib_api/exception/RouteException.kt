@@ -1,5 +1,6 @@
 package com.lq.lib_api.exception
 
+
 open class RouteException(message: String): RuntimeException(message)
 
 class GroupNotFoundException(group: String): RouteException("Group not found :$group")
@@ -16,3 +17,4 @@ class RouteMetaIllegalException(): RouteException("Route Meta is not initialized
 
 class UriParseIllegalException(uri: String): RouteException("uri 解析异常 : $uri")
 
+class RouteConflictException(path:String,classInfo:Class<*>,newClassInfo: Class<*>): RouteException("Route conflict : $path\n old:${classInfo} new:${newClassInfo}" )

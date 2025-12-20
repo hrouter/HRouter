@@ -24,8 +24,8 @@ class LoginActivity: ComponentActivity() {
     var account :Int?=null
 
 
-    @AutoWired
-    lateinit var user: UserInfo
+//    @AutoWired
+//    lateinit var user: UserInfo
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,7 +42,7 @@ class LoginActivity: ComponentActivity() {
             Text(text = "主页登录信息", fontSize = 28.sp)
             Text("userName: $userName")
             Text("account: $account")
-            Text("user: $user")
+//            Text("user: $user")
         }
 
     }

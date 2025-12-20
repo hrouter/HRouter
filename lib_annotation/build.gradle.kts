@@ -17,7 +17,7 @@ publishing {
         create<MavenPublication>("annotationJar") {
             groupId = "com.lq.hrouter"
             artifactId = "lib_annotation"
-            version = "1.0.0"
+            version = "0.0.1"
 
             from(components["java"])
         }

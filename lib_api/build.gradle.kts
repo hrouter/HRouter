@@ -55,7 +55,7 @@ publishing {
         create<MavenPublication>("apiAar") {
             groupId = "com.lq.hrouter"
             artifactId = "lib_api"
-            version = "1.0.0"
+            version = "0.0.1"
 
             afterEvaluate {
                 from(components["release"])

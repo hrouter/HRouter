@@ -16,7 +16,7 @@ import com.lq.lib_annotation.Route
 import com.lq.lib_annotation.DeepLink
 import com.lq.lib_api.HRouter
 
-@Route(path = "/login/test")
+@Route(path = "/mock/test")
 class LoginTestActivity: ComponentActivity() {
     @AutoWired
     var userName:String = ""

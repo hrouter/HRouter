@@ -24,6 +24,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".TestActivity"/>
+        <activity android:name=".LoginActivity"/>
         <activity android:name=".DeepLinkDispatcherActivity"
             android:exported="true">
             <intent-filter android:autoVerify="true">

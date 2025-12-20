@@ -5,6 +5,8 @@ import android.util.Log
 object LogUtil {
     private val logTag = "RouteLog"
 
+    private var debug :Boolean = false
+
     fun v(tag: String,msg: String){
         Log.v(tag,msg)
     }
