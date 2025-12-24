@@ -17,7 +17,7 @@ import com.lq.lib_annotation.DeepLink
 import com.lq.lib_api.HRouter
 
 
-@Route(path = "/login/degrade")
+@Route(path = "/degrade/degrade")
 class LoginDegradeActivity: ComponentActivity() {
     @AutoWired
     var userName:String?=null

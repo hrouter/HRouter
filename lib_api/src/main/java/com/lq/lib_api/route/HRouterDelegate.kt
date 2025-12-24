@@ -12,6 +12,7 @@ import com.lq.lib_api.autowired.ParameterBuilder
 import com.lq.lib_api.degrade.DegradeContext
 import com.lq.lib_api.degrade.DegradeManager
 import com.lq.lib_api.entity.DispatchResult
+import com.lq.lib_api.interceptor.RouteContext
 import com.lq.lib_api.interceptor.RouteDispatcher
 import com.lq.lib_api.interceptor.RouteRequest
 import com.lq.lib_api.util.LogUtil
@@ -66,8 +67,8 @@ internal class HRouterDelegate(private val path: String) {
     /** 启动流程，负责 dispatch 调度和最终跳转 */
     fun navigate() {
         val request = RouteRequest(path, context, bundle)
-
-        RouteDispatcher.dispatchAsync(request,
+        val routeContext = RouteContext(request,0)
+        RouteDispatcher.dispatchAsync(routeContext,
             onSuccess = { realPath ->
                 val intentBuilder = buildIntent(realPath)
                 LogUtil.d("navigate : $realPath")

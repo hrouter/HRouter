@@ -1,6 +1,7 @@
 package com.lq.lib_api.util
 
 import com.lq.lib_api.degrade.DegradeManager
+import com.lq.lib_api.interceptor.RouteContext
 import kotlinx.coroutines.CoroutineExceptionHandler
 
 
@@ -9,10 +10,10 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 /*
 * 路由降级协程处理器
 * */
-fun routeDegradeCoroutineHandler( path: String) = CoroutineExceptionHandler { _, throwable ->
+fun routeDegradeCoroutineHandler( context: RouteContext) = CoroutineExceptionHandler { _, throwable ->
     if (throwable is Exception) {
-        LogUtil.d("Route Degrade Coroutine Exception : $path")
-        DegradeManager.handleDegrade(path,throwable)
+        LogUtil.d("Route Degrade Coroutine Exception : ${context.request.path}")
+        DegradeManager.handleDegrade(context.request.path,throwable)
     }
 }
 

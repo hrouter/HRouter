@@ -22,7 +22,7 @@ internal class AutoWiredVisitor(
         val className = classDeclaration.simpleName.asString()
         val packageName = classDeclaration.packageName.asString()
 
-        logger.warn("className: $className   packageName: $packageName")
+//        logger.warn("className: $className   packageName: $packageName")
 
         val fileSpec = FileSpec.builder(packageName, "${className}AutoWired")
         val classSpec = TypeSpec.classBuilder("${className}AutoWired")
@@ -41,7 +41,7 @@ internal class AutoWiredVisitor(
             val isLateinit = property.modifiers.contains(Modifier.LATEINIT)
             val isNullable = property.type.resolve().isMarkedNullable
 
-            logger.warn("inject: $injectedName is type:$type   nullable: $isNullable   lateinit: $isLateinit")
+//            logger.warn("inject: $injectedName is type:$type   nullable: $isNullable   lateinit: $isLateinit")
 
             val typeName = type.toTypeName()
             val adapterType = typeName.copy(nullable = false) // adapter 必须非空类型
@@ -78,7 +78,7 @@ internal class AutoWiredVisitor(
         )
         file.bufferedWriter().use { info.writeTo(it) }
 
-        logger.warn("AutoWiredVisitor completed for $className")
+//        logger.warn("AutoWiredVisitor completed for $className")
     }
 
 }

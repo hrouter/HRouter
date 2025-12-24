@@ -1,9 +1,8 @@
 package com.lq.lib_api.interceptor
 
-import com.lq.lib_api.degrade.DegradeContext
-import com.lq.lib_api.degrade.DegradeManager
 import com.lq.lib_api.entity.DispatchResult
-import com.lq.lib_api.entity.RouteAction
+import com.lq.lib_api.entity.InterceptorResult
+import com.lq.lib_api.util.LogUtil
 import com.lq.lib_api.util.routeDegradeCoroutineHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -12,28 +11,27 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 object RouteDispatcher {
-    private const val MAX_REDIRECT = 5
+    private const val MAX_REDIRECT = 3
 
 
     /**
      * 异步调度路由请求
-     * @param request 路由请求对象
+     * @param context 路由请求上下文
      * @param onSuccess 成功回调，返回最终路径
      * @param onFail 失败回调，返回失败原因
      */
     fun dispatchAsync(
-        request: RouteRequest,
+        context: RouteContext,
         onSuccess: (realPath: String) -> Unit,
         onFail: (reason: String) -> Unit
     ) {
-
         // 使用协程在 IO 线程调度
-        CoroutineScope(Dispatchers.IO + SupervisorJob() + routeDegradeCoroutineHandler(request.path))
+        CoroutineScope(Dispatchers.IO + SupervisorJob() + routeDegradeCoroutineHandler(context))
             .launch {
                 try {
-                    when (val result = dispatch(request)) {
+                    when (val result = dispatch(context)) {
                         is DispatchResult.Success -> {
-                            val realPath = result.request.path
+                            val realPath = result.context.request.path
                             withContext(Dispatchers.Main) {
                                 onSuccess(realPath)
                             }
@@ -55,31 +53,29 @@ object RouteDispatcher {
 
 
 
-    suspend fun dispatch(request: RouteRequest): DispatchResult {
+    suspend fun dispatch(context: RouteContext ): DispatchResult {
 
-        var currentRequest = request
-
-        var redirectCount = 0
+        var currentContext = context
 
         while (true) {
-            val interceptors = InterceptorManager.getInterceptorsForRequest(currentRequest.path)
+            val interceptors = InterceptorManager.getInterceptorsForRequest(currentContext.request.path)
 
-            val chain = RealRouteChain(interceptors, 0, currentRequest)
+            val chain = RealRouteChain(interceptors, 0, currentContext)
 
-            when (val action = chain.proceed(currentRequest)) {
+            LogUtil.d("Interceptor Result : ${interceptors.first()} ${currentContext.request.path} ${currentContext.attempts} ")
 
-                is RouteAction.Success ->  return DispatchResult.Success(currentRequest)
+            when (val action = chain.proceed(currentContext)) {
 
-                is RouteAction.Fail ->  return DispatchResult.Fail(action.reason)
+                is InterceptorResult.Continue ->  return DispatchResult.Success(currentContext)
 
-                is RouteAction.Redirect -> {
-                    if(redirectCount >= MAX_REDIRECT) return DispatchResult.Fail("redirect loop")
-                    redirectCount++
-                    currentRequest = action.newRequest
+                is InterceptorResult.Fail ->  return DispatchResult.Fail(action.reason)
+
+                is InterceptorResult.Redirect -> {
+                    if(action.newContext.attempts >= MAX_REDIRECT) return DispatchResult.Fail("Redirect Loop")
+                    currentContext = action.newContext
+                    LogUtil.d("Redirect Context :${currentContext.request.path} ${currentContext.attempts}")
                     continue
                 }
-
-                else -> {}
             }
         }
     }

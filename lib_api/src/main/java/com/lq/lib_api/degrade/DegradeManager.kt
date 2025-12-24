@@ -3,18 +3,16 @@ package com.lq.lib_api.degrade
 import android.content.Context
 import com.lq.lib_annotation.data.DegradeMeta
 import com.lq.lib_annotation.degrade.IDegradeRegister
-import com.lq.lib_annotation.degrade.IRouteDegrade
+import com.lq.lib_api.HRouter
+import com.lq.lib_api.degrade.IRouteDegrade
+import com.lq.lib_api.entity.DegradeResult
+import com.lq.lib_api.interceptor.InterceptorManager.interceptors
 import com.lq.lib_api.util.LogUtil
+import com.lq.lib_api.util.pathMatches
 
 internal object DegradeManager {
 
-    private val degrades = mutableListOf<IRouteDegrade>()
-
-    private val data = mutableListOf<DegradeMeta>()
-
-    fun addDegrade(degrade: IRouteDegrade) {
-        degrades.add(degrade)
-    }
+    private val degrades = mutableMapOf<DegradeMeta, IRouteDegrade>()
 
     private val degradeContext = DegradeContext()
 
@@ -23,52 +21,49 @@ internal object DegradeManager {
         val instance = clazz.getField("INSTANCE").get(null) // 拿到 object 的单例实例
         val method = clazz.getDeclaredMethod("getRoots")
         val registers = method.invoke(instance) as List<IDegradeRegister>
-
+        val data = mutableListOf<DegradeMeta>()
         registers.forEach {
             it.register(data)
         }
-        val sortedDegrades = data
-            .sortedBy { it.priority }  // 按 priority 升序（数值小的先执行）
-            .map { DegradeFactory.create(context, it.className) }
+        data.sortedBy { it.priority }.map {
+            DegradeFactory.create(context, it.className).apply {
+                degrades[it] = this
+            }
+        }
 
-        degrades.clear()
-        degrades.addAll(sortedDegrades)
     }
 
-    fun handleDegrade(path:String, exception: Throwable) {
-        LogUtil.i("Degrade Handler :${path}")
-        if(!degradeContext.markVisited(path)) {
+    fun handleDegrade(path: String, exception: Throwable) {
+        LogUtil.i("Degrade Handler :${path} ${exception.message}")
+
+        if (!degradeContext.markVisited(path)) {
             LogUtil.i("Degrade Handler Loop :${path}")
             degradeContext.clearVisited()
             return
         }
+
+        val degradeRequest = DegradeRequest(path, "${exception.message}")
+
         try {
-            for (degrade in getInterceptorsForRequest(path)) {
-                val handled = degrade.onLost(path, "${exception.message}")
-                if (handled)  return
+            for (degrade in getDegradesFromRequest(path)) {
+                when (val result = degrade.onLost(degradeRequest)) {
+                    is DegradeResult.Redirect -> {
+                        HRouter.build(result.newRequest.newPath).navigate()
+                    }
+
+                    is DegradeResult.Ignore -> {
+                        LogUtil.i("Degrade Handler Ignore :${path}")
+                    }
+                }
             }
         } catch (e: Exception) {
             degradeContext.clearVisited()
-            LogUtil.e("DegradeException", "Degrade Handler Exception : ${e.message}")
+            LogUtil.e("Degrade Handler Exception : ${e.message}")
         }
     }
 
 
-    fun getInterceptorsForRequest(requestPath: String): List<IRouteDegrade> {
-        return degrades.filterIndexed { index, _ ->
-            val meta = data.getOrNull(index) ?: return@filterIndexed false
-            pathMatches(requestPath, meta.path)
-        }
-    }
+    fun getDegradesFromRequest(requestPath: String): List<IRouteDegrade> =  degrades.filter { requestPath.pathMatches(it.key.path) }.map { it.value }
 
-    private fun pathMatches(requestPath: String, interceptorPath: String): Boolean {
-        if (interceptorPath == requestPath) return true
-        if (interceptorPath.endsWith("/*") &&
-            requestPath.startsWith(interceptorPath.removeSuffix("/*"))
-        ) return true
-        if (interceptorPath == "*") return true
-        if (interceptorPath == "") return true
-        return false
-    }
 
 }

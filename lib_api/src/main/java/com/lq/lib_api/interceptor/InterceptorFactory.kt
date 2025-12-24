@@ -5,6 +5,9 @@ import android.content.Context
 internal object InterceptorFactory {
     private val interceptorCache = mutableMapOf<String, IRouteInterceptor>()
 
+    /*
+    * 反射去获取
+    * */
     fun create(context: Context,className: String): IRouteInterceptor{
         return interceptorCache.getOrPut(className) {
             val clazz = Class.forName(className)

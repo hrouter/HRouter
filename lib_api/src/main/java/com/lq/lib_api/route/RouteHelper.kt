@@ -6,60 +6,72 @@ import com.lq.lib_annotation.route.IRouteRoot
 import com.lq.lib_api.exception.GroupNotFoundException
 import com.lq.lib_api.exception.PathIllegalException
 import com.lq.lib_api.exception.PathNotFoundException
-import com.lq.lib_api.exception.RouteConflictException
 import com.lq.lib_api.util.LogUtil
+import com.lq.lib_api.util.isValidateRoute
 import java.util.concurrent.ConcurrentHashMap
 
-//todo 高并发测试
 internal object RouteHelper {
     private val routeRoot = mutableMapOf<String, String>()
     private val groupCache = ConcurrentHashMap<String, Map<String, RouteMeta>>()
 
-    fun findRoot(){
-        val clazz = Class.forName("com.lq.router.HRouterIndex") //路由总表
-        val instance = clazz.getField("INSTANCE").get(null) // 拿到 object 的单例实例
-        val method = clazz.getDeclaredMethod("getRoots")
-
-        val roots = method.invoke(instance) as List<IRouteRoot>
-
-        roots.forEach {
-            it.loadInto(routeRoot)
-        }
-        LogUtil.d("RouteRouteSie:${routeRoot.size}")
-        routeRoot.forEach {
-            LogUtil.d("RouteRoot : ${it.key} : ${it.value}")
+    internal var routeRootProvider: () -> MutableMap<String, String> = {
+        mutableMapOf<String, String>().also { map ->
+            val clazz = Class.forName("com.lq.router.HRouterIndex")
+            val instance = clazz.getField("INSTANCE").get(null)
+            val method = clazz.getDeclaredMethod("getRoots")
+            val roots = method.invoke(instance) as List<IRouteRoot>
+            roots.forEach { it.loadInto(map) }
         }
     }
 
-    //todo 如果在更大型的项目中，是否考虑前缀树搜索？
+    internal var groupLoader: (String) -> IRouteGroup = { path ->
+        Class.forName(path)
+            .getDeclaredConstructor()
+            .newInstance() as IRouteGroup
+    }
+
+    fun init(){
+        initWithRouteRoots(routeRootProvider())
+    }
+
+    /** 框架内部用：注入路由表 */
+    internal fun initWithRouteRoots(routeRoots: Map<String, String>) {
+        routeRoot.clear()
+        routeRoot.putAll(routeRoots)
+    }
+
+
+    /*
+    *
+    * */
     fun findGroup(path: String): RouteMeta {
+        LogUtil.d("routeRootSize:${routeRoot.size}")
         val segments = path.split("/")
-        require(path.startsWith("/") && segments.size >= 2) { throw PathIllegalException(path) }
+        require(isValidateRoute(path)) { throw PathIllegalException(path) }
         val group = segments[1]
         val groupPath = routeRoot[group] ?: throw GroupNotFoundException(group)
         val groupMap = getGroupFromCache(group)
         val routeMeta = groupMap?.get(path)
-       return routeMeta?:getGroup(groupPath,path)
+        return routeMeta ?: getGroup(groupPath, path)
     }
 
-    private fun getGroup(groupPath: String,path: String): RouteMeta {
-        LogUtil.d("groupPath:$groupPath path:$path")
-        val group = Class.forName(groupPath)
-        val groupInfo = group.getDeclaredConstructor().newInstance() as IRouteGroup
+    /*
+    * 从反射中获取数据并缓存
+    * */
+    private fun getGroup(groupPath: String, path: String): RouteMeta {
+        val groupInfo = groupLoader(groupPath)
+        LogUtil.d("groupPath:$groupPath path:$path groupInfo:$groupInfo")
         val myGroupMap = mutableMapOf<String, RouteMeta>()
-        groupInfo.loadInto(myGroupMap,path)
-        myGroupMap.forEach {
-            LogUtil.d("GroupMap: ${it.key} : ${it.value}")
-        }
+        groupInfo.loadInto(myGroupMap)
         val routeMeta = myGroupMap[path] ?: throw PathNotFoundException(path)
-        cacheGroup(groupPath,myGroupMap)
+        cacheGroup(groupPath, myGroupMap)
         return routeMeta
     }
 
     /*
     * 从缓存中取出分组信息
     * */
-    private fun getGroupFromCache(group: String): Map<String, RouteMeta>?{
+    private fun getGroupFromCache(group: String): Map<String, RouteMeta>? {
         return groupCache[group]
     }
 
@@ -67,7 +79,7 @@ internal object RouteHelper {
     /*
     * 缓存分组信息
     * */
-    private fun cacheGroup(group: String,map:Map<String, RouteMeta>){
+    private fun cacheGroup(group: String, map: Map<String, RouteMeta>) {
         groupCache[group] = map
     }
 }

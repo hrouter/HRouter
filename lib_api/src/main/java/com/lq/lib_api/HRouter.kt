@@ -17,7 +17,7 @@ object HRouter {
 
     fun init(context: Application){
         app = context
-        RouteHelper.findRoot()
+        RouteHelper.init()
         InterceptorManager.initInterceptor(context)
         DegradeManager.init(context)
         DeepLinkManager.init(context)

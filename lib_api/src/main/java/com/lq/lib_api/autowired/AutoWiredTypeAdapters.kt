@@ -2,9 +2,19 @@ package com.lq.lib_api.autowired
 
 import android.os.Bundle
 import android.os.Parcelable
+import com.lq.lib_api.util.LogUtil
 import java.io.Serializable
 import kotlin.reflect.KClass
 
+/**
+ * HRouter AutoWired 规则：
+ * 1. 基本类型、数组：直接支持
+ * 2. Parcelable 子类：统一走 Parcelable
+ * 3. Serializable 子类：统一走 Serializable
+ * 4. 其余类型：直接失败
+ *
+ * 不支持自定义 register，以避免运行期不可控行为
+ */
 object AutoWiredTypeAdapters {
 
 
@@ -34,16 +44,22 @@ object AutoWiredTypeAdapters {
         adapters[Serializable::class] = { b, k -> b?.getSerializable(k) }
     }
 
-    fun <T: Any> register(type: KClass<T>, adapter: (Bundle?, String) -> T?) {
+
+    /*fun <T: Any> register(type: KClass<T>, adapter: (Bundle?, String) -> T?) {
         adapters[type] = adapter
-    }
+    }*/
 
     fun getAdapter(type: KClass<*>): ((Bundle?, String) -> Any?)? {
+        if (Parcelable::class.java.isAssignableFrom(type.java)) {
+            return adapters[Parcelable::class]
+        }
+        if(Serializable::class.java.isAssignableFrom(type.java)){
+            return adapters[Serializable::class]
+        }
         return adapters[type]
     }
 
 }
 
 fun test(bundle: Bundle?){
-    val userName :String = AutoWiredTypeAdapters.getAdapter(String::class)?.invoke(bundle,"userName") as? String? ?:""
 }

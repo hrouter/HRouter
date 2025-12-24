@@ -27,6 +27,7 @@ internal class RouteSymbolProcessorPart(environment: SymbolProcessorEnvironment)
     private val logger : KSPLogger = environment.logger
     private val codeGenerator: CodeGenerator = environment.codeGenerator
     private val moduleName = environment.options["moduleName"]?:"default"
+
     override fun process(resolver: Resolver) {
         if (resolver.getNewFiles().none()) return
         val routeMap = mutableMapOf<String, MutableMap<String, String>>()
@@ -95,18 +96,19 @@ internal class RouteSymbolProcessorPart(environment: SymbolProcessorEnvironment)
             val function = FunSpec.builder("loadInto").addModifiers(KModifier.OVERRIDE)
                 .addParameter("groupMap",Const.MutableMapClassName.parameterizedBy(
                     Const.StringClassName,routeMetaClass))
-                .addParameter("path",Const.StringClassName)
+//                .addParameter("path",Const.StringClassName)
             val safeLoadPathMember = MemberName(
                 Const.SAFE_LOAD_PATH,
                 Const.SAFE_LOAD_PATH_NAME
             )
             for ((path,classInfo) in pathMap){
                 val destinationClassName = ClassName.bestGuess(classInfo)
+                logger.warn("generateGroup groupName:$groupName className:$className path:$path classInfo:$classInfo")
                 val routeMetaInstance = CodeBlock.of(
                     "%T(%S, %T::class.java, %S)",
                     routeMetaClass, path, destinationClassName, groupName
                 )
-                function.addStatement("%M(groupMap,path,%L)",safeLoadPathMember,routeMetaInstance)
+                function.addStatement("%M(groupMap,%L)",safeLoadPathMember,routeMetaInstance)
             }
             val fileSpec = FileSpec.builder(Const.H_ROUTER_PACKAGE, className)
                 .addType(TypeSpec.classBuilder(className).addSuperinterface(groupInterface).addFunction(function.build()).build()).build()

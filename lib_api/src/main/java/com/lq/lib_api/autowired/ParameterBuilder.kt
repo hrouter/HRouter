@@ -3,6 +3,7 @@ package com.lq.lib_api.autowired
 import android.os.Bundle
 import android.os.Parcelable
 import com.lq.lib_api.exception.PutTypeIllegalException
+import com.lq.lib_api.util.LogUtil
 import java.io.Serializable
 
 class ParameterBuilder {

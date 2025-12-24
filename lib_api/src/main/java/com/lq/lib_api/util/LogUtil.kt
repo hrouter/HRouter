@@ -17,5 +17,5 @@ object LogUtil {
 
     fun w(tag:String,msg: String) = Log.w(tag,msg)
 
-    fun e(tag:String,msg:String) = Log.e(tag,msg)
+    fun e(msg:String,tag:String = logTag) = Log.e(tag,msg)
 }

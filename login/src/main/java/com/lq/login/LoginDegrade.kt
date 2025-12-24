@@ -1,19 +1,19 @@
 package com.lq.login
 
 import com.lq.lib_annotation.RouteDegrade
-import com.lq.lib_annotation.degrade.IRouteDegrade
+import com.lq.lib_api.degrade.IRouteDegrade
 import com.lq.lib_api.HRouter
+import com.lq.lib_api.degrade.DegradeRequest
+import com.lq.lib_api.entity.DegradeResult
 import com.lq.lib_api.util.LogUtil
 
 @RouteDegrade(priority = 3,path ="*" )
 class LoginDegrade: IRouteDegrade {
-    override fun onLost(
-        path: String,
-        reason: String,
-    ): Boolean {
-        LogUtil.d("path:$path reason:$reason")
 
-        HRouter.build("/login/degrade").navigate() //重定向到降级页面
-        return true
+    override fun onLost(request: DegradeRequest): DegradeResult {
+
+        LogUtil.d("path:${request.newPath} reason:${request.reason}")
+
+        return DegradeResult.Redirect(request.copy(newPath = "/degrade/degrade",reason = "degrade degrade"))
     }
 }

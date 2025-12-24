@@ -16,7 +16,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.lq.lib_annotation.Route
-import com.lq.lib_annotation.DeepLink
 import com.lq.lib_api.HRouter
 import com.lq.gradletest.ui.theme.GradleTestTheme
 
@@ -51,7 +50,7 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
 }
 
 fun toLogin(){
-    HRouter.build("/login/test").withParams {
+    HRouter.build("/main/test").withParams {
 //       "userName" to "Android"
 //        "account" to 100
         "mock" to "Mock"

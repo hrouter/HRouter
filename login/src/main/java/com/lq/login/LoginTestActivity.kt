@@ -41,7 +41,7 @@ class LoginTestActivity: ComponentActivity() {
     @Composable
     fun LoginScreen(){
         Column(modifier = Modifier.fillMaxSize().padding(88.dp)) {
-            Text(text = "这是我的测试信息", fontSize = 28.sp)
+            Text(text = "MockTest", fontSize = 28.sp)
             Text("userName: $userName")
             Text("account: $account")
 //            Text("mock: $mock")

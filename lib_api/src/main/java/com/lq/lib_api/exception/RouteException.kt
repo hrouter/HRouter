@@ -15,6 +15,6 @@ class ContextIllegalException(): RouteException("Context is required,Current Con
 
 class RouteMetaIllegalException(): RouteException("Route Meta is not initialized")
 
-class UriParseIllegalException(uri: String): RouteException("uri 解析异常 : $uri")
+class UriParseIllegalException(uri: String): RouteException("uri Parse Exception : $uri")
 
 class RouteConflictException(path:String,classInfo:Class<*>,newClassInfo: Class<*>): RouteException("Route conflict : $path\n old:${classInfo} new:${newClassInfo}" )

@@ -1,7 +1,7 @@
 package com.lq.lib_api.degrade
 
 import android.content.Context
-import com.lq.lib_annotation.degrade.IRouteDegrade
+import com.lq.lib_api.degrade.IRouteDegrade
 
 internal object DegradeFactory {
 
