@@ -5,6 +5,7 @@ import com.lq.lib_api.exception.GroupNotFoundException
 import com.lq.lib_api.exception.PathIllegalException
 import com.lq.lib_api.route.RouteHelper
 import com.lq.lib_api.util.pathMatches
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -41,6 +42,7 @@ class InterceptorTest {
         assertFalse(ruleJ,"规则J不应该匹配")
         assertFalse(ruleK,"规则K不应该匹配")
 
+
     }
 
 
@@ -61,33 +63,39 @@ class InterceptorTest {
         assertFalse(b in data,"B不应该被匹配")
         assertTrue(a in data,"A应该被匹配")
         assertTrue(c in data,"C应该被匹配")
+
+        assertEquals(listOf(a,c),data) //验证优先级顺序，最小数值优先级最高，并列优先级不处理
     }
 
 
     @Test
     fun `边界情况-路由地址不合法`(){
-        assertThrows<PathIllegalException> { RouteHelper.findGroup("//user/mock") }
+        val ext = assertThrows<PathIllegalException> { RouteHelper.findGroup("//user/mock") }
+        assertTrue { ext.message?.contains("//user/mock") == true } //验证诊断信息是否合理
         assertThrows<PathIllegalException> { RouteHelper.findGroup("/login/") }
         assertThrows<PathIllegalException> { RouteHelper.findGroup("/user//mock") }
         assertThrows<GroupNotFoundException> { RouteHelper.findGroup("/login/user") }
+        assertThrows<PathIllegalException> { RouteHelper.findGroup("/login") }
     }
 
 
     @Test
-    fun `路由缓存测试`(){
+    fun `路由缓存命中与非命中`(){
         var loadCount = 0
 
         RouteHelper.initWithRouteRoots(
-            mapOf("/fake/fake" to "FakeRouteGroup::class.java")
+            mapOf("fake" to "FakeRouteGroup::class.java")
         )
         RouteHelper.groupLoader = {
             loadCount++
             FakeRouteGroup()
         }
-        val routeMeta = RouteHelper.findGroup("/fake/fake")
-        assertTrue { loadCount == 0 }
         RouteHelper.findGroup("/fake/fake")
-        assertTrue { loadCount ==1  }
+        assertTrue { loadCount == 1 }
+        RouteHelper.findGroup("/fake/fake")
+        assertTrue { loadCount == 1  }
+        RouteHelper.findGroup("/fake/other")
+        assertTrue { loadCount == 2 }  //验证缓存非命中的情况
     }
 
 }

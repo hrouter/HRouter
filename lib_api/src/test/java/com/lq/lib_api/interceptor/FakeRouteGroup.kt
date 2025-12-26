@@ -8,5 +8,6 @@ import kotlin.jvm.java
 class FakeRouteGroup : IRouteGroup {
     override fun loadInto(groupMap: MutableMap<String, RouteMeta>) {
         safeLoadPath(groupMap,RouteMeta("/fake/fake", TestInterceptor::class.java, "fake"))
+        safeLoadPath(groupMap,RouteMeta("/fake/other", TestInterceptor::class.java, "fake"))
     }
 }
