@@ -1,9 +1,11 @@
 package com.lq.lib_api.interceptor
 
+import com.lq.lib_api.degrade.DegradeContext
 import com.lq.lib_api.entity.DispatchResult
 import com.lq.lib_api.entity.InterceptorResult
 import com.lq.lib_api.util.LogUtil
 import com.lq.lib_api.util.routeDegradeCoroutineHandler
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -13,38 +15,43 @@ import kotlinx.coroutines.withContext
 object RouteDispatcher {
     private const val MAX_REDIRECT = 3
 
+    var ioDispatcher: CoroutineDispatcher = Dispatchers.IO
+    var mainDispatcher: CoroutineDispatcher = Dispatchers.Main
+
 
     /**
      * 异步调度路由请求
      * @param context 路由请求上下文
      * @param onSuccess 成功回调，返回最终路径
      * @param onFail 失败回调，返回失败原因
+     * @param degradeContext 降级上下文，避免循环降级
      */
     fun dispatchAsync(
         context: RouteContext,
         onSuccess: (realPath: String) -> Unit,
-        onFail: (reason: String) -> Unit
+        onFail: (reason: String) -> Unit,
+        degradeContext: DegradeContext?=null
     ) {
         // 使用协程在 IO 线程调度
-        CoroutineScope(Dispatchers.IO + SupervisorJob() + routeDegradeCoroutineHandler(context))
+        CoroutineScope(ioDispatcher+ SupervisorJob() + routeDegradeCoroutineHandler(context,degradeContext))
             .launch {
                 try {
                     when (val result = dispatch(context)) {
                         is DispatchResult.Success -> {
                             val realPath = result.context.request.path
-                            withContext(Dispatchers.Main) {
+                            withContext(mainDispatcher) {
                                 onSuccess(realPath)
                             }
                         }
 
                         is DispatchResult.Fail -> {
-                            withContext(Dispatchers.Main) {
+                            withContext(mainDispatcher) {
                                 onFail(result.reason)
                             }
                         }
                     }
                 } catch (e: Exception) {
-                    withContext(Dispatchers.Main) {
+                    withContext(mainDispatcher) {
                         onFail(e.message ?: "Unknown Error")
                     }
                 }

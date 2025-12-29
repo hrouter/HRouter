@@ -14,7 +14,7 @@ class PermissionInterceptor: IRouteInterceptor {
 
     override suspend fun intercept(chain: InterceptorChain): InterceptorResult {
         var hasPermission = false
-        if(!hasPermission) return InterceptorResult.Redirect(chain.context.copy(request = chain.context.request.copy(path = "/login/login")))
+        if(!hasPermission) return InterceptorResult.Redirect(chain.routeContext.copy(request = chain.routeContext.request.copy(path = "/login/login")))
         return InterceptorResult.Continue
     }
 }

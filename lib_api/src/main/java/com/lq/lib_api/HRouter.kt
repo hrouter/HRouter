@@ -11,7 +11,7 @@ import com.lq.lib_api.route.RouteHelper
 
 object HRouter {
 
-    //todo 1.支持更多参数， 2 deeplink 3 打包aar 4 注入参数的健壮性 5 loadService
+    //todo  1 deeplink参数解析 2.@Route路由模板化 3 打包aar  4 loadService 5 fragmentManager
 
     private lateinit var app: Application
 
@@ -19,18 +19,23 @@ object HRouter {
         app = context
         RouteHelper.init()
         InterceptorManager.initInterceptor(context)
-        DegradeManager.init(context)
-        DeepLinkManager.init(context)
-    }
-
-
-    fun build(path: String): RouterBuilder {
-        return RouterBuilder(path).withContext(app)
+        DegradeManager.init()
+        DeepLinkManager.init()
     }
 
 
     /*
-    * low 版
+    * 进行跳转
+    * */
+    fun build(path: String): RouterBuilder {
+        val builder = RouterBuilder(path)
+        if(::app.isInitialized) builder.withContext(app)
+        return builder
+    }
+
+
+    /*
+    * low 版，deepLink解析，解析参数尚待完善
     * */
     fun buildUriWithNoParameters(uri:String): RouterBuilder {
         val path = DeepLinkManager.getPathWithNoParameters(uri)
@@ -40,6 +45,7 @@ object HRouter {
     }
 
     /*
+    * 正常解析deeplink
    * todo 这里必须优先重构@Route注解 使其模板化
    * */
     fun buildUri(uri:String): RouterBuilder {
@@ -55,6 +61,10 @@ object HRouter {
         return routerBuilder
     }
 
+
+    /**
+     * 自动注入数据
+     * */
     fun inject(target: Any){
         AutoWiredHelper.inject(target)
     }

@@ -1,17 +1,14 @@
 package com.lq.lib_api.degrade
 
-import android.content.Context
-import com.lq.lib_api.degrade.IRouteDegrade
 
 internal object DegradeFactory {
 
     private val interceptorCache = mutableMapOf<String, IRouteDegrade>()
 
-    fun create(context: Context,className: String): IRouteDegrade {
+    //todo 拓展需要context 对降级进行初始化，比如从sp或者dataStore中获取数据，诸如此类
+    fun create(className: String): IRouteDegrade {
         return interceptorCache.getOrPut(className) {
-            val clazz = Class.forName(className)
-            val instance = clazz.getDeclaredConstructor().newInstance() as IRouteDegrade
-            instance
+           Class.forName(className).getDeclaredConstructor().newInstance() as IRouteDegrade
         }
     }
 }

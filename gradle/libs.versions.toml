@@ -15,6 +15,7 @@ kotlinpoet = "2.1.0"
 appcompat = "1.7.0"
 material = "1.12.0"
 hrouter = "0.0.1"
+coroutines = "1.7.3"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -44,6 +45,9 @@ material = { group = "com.google.android.material", name = "material", version.r
 hrouter-annotation = { group = "com.lq.hrouter" , name="lib_annotation", version.ref = "hrouter" }
 hrouter-api = { group = "com.lq.hrouter" , name = "lib_api", version.ref = "hrouter"}
 hrouter-compiler = { group = "com.lq.hrouter", name = "lib_compiler", version.ref = "hrouter"}
+
+#coroutine-test
+coroutine-test = { group = "org.jetbrains.kotlinx" , name = "kotlinx-coroutines-test", version.ref = "coroutines" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

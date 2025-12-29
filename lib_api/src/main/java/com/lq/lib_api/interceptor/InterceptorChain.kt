@@ -4,16 +4,15 @@ import com.lq.lib_api.entity.InterceptorResult
 
 
 interface InterceptorChain {
-    val context: RouteContext
+    val routeContext: RouteContext
 
-    suspend fun proceed(context: RouteContext = this.context): InterceptorResult
+    suspend fun proceed(context: RouteContext = this.routeContext): InterceptorResult
 
     fun redirect(newPath: String): RouteContext{
-        context.copy(
-            request = context.request.copy(path = newPath)
+        routeContext.copy(
+            request = routeContext.request.copy(path = newPath)
         )
-//        this.context = context
-        return context
+        return routeContext
     }
 
 

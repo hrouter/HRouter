@@ -15,6 +15,7 @@ import com.lq.lib_api.entity.DispatchResult
 import com.lq.lib_api.interceptor.RouteContext
 import com.lq.lib_api.interceptor.RouteDispatcher
 import com.lq.lib_api.interceptor.RouteRequest
+import com.lq.lib_api.navigate.NavigateContext
 import com.lq.lib_api.util.LogUtil
 import com.lq.lib_api.util.routeDegradeCoroutineHandler
 import kotlinx.coroutines.CoroutineScope
@@ -55,7 +56,7 @@ internal class HRouterDelegate(private val path: String) {
     }
 
     /** 构建 Intent，仅在本地生成 */
-    private fun buildIntent(targetPath: String): IntentBuilder {
+    internal fun buildIntent(targetPath: String): IntentBuilder {
         val routeMeta = RouteHelper.findGroup(targetPath)
         return IntentBuilder(context).apply {
             set(routeMeta)
@@ -64,24 +65,16 @@ internal class HRouterDelegate(private val path: String) {
         }
     }
 
-    /** 启动流程，负责 dispatch 调度和最终跳转 */
-    fun navigate() {
-        val request = RouteRequest(path, context, bundle)
-        val routeContext = RouteContext(request,0)
-        RouteDispatcher.dispatchAsync(routeContext,
-            onSuccess = { realPath ->
-                val intentBuilder = buildIntent(realPath)
-                LogUtil.d("navigate : $realPath")
-                startActivity(intentBuilder)
-            },
-            onFail = { reason ->
-                DegradeManager.handleDegrade( path, Exception(reason))
-            }
-        )
+    /*
+    * 生成navigateContext
+    * */
+    internal fun buildNavigateContext(degradeContext: DegradeContext?=null): NavigateContext{
+        val context = NavigateContext(path,bundle,RouteContext(RouteRequest(path,bundle),0),launcher,enterAnim,exitAnim,degradeContext)
+        return context
     }
 
     /** 仅处理 activity 启动及动画，状态局部化 */
-    private fun startActivity(intentBuilder: IntentBuilder) {
+    internal fun startActivity(intentBuilder: IntentBuilder) {
         val intent = intentBuilder.get()
         val options = createOptions()
 

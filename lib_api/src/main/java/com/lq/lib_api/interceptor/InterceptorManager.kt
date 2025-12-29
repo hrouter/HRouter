@@ -1,5 +1,6 @@
 package com.lq.lib_api.interceptor
 
+import android.app.Application
 import android.content.Context
 import com.lq.lib_annotation.data.InterceptorMeta
 import com.lq.lib_annotation.interceptor.IInterceptorRegister
@@ -16,7 +17,7 @@ internal object InterceptorManager {
     * 这里是从小到大的一个TimeSort 归并排序
     * 意味着优先级值 越低 优先级越高
     * */
-    fun initInterceptor(context: Context) {
+    fun initInterceptor(context: Application) {
         val clazz = Class.forName("com.lq.router.InterceptorIndex")
         val instance = clazz.getField("INSTANCE").get(null) // 拿到 object 的单例实例
         val method = clazz.getDeclaredMethod("getRoots")

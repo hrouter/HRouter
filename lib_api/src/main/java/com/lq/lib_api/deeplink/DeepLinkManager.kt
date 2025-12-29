@@ -10,7 +10,7 @@ import kotlin.collections.forEach
 internal object DeepLinkManager {
     private val links = mutableMapOf<String, String>()
 
-    fun init(context: Application){
+    fun init(){
         val clazz = Class.forName("com.lq.router.DeepLinkIndex")
         val instance = clazz.getField("INSTANCE").get(null) // 拿到 object 的单例实例
         val method = clazz.getDeclaredMethod("getRoots")

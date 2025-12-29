@@ -18,3 +18,6 @@ class RouteMetaIllegalException(): RouteException("Route Meta is not initialized
 class UriParseIllegalException(uri: String): RouteException("uri Parse Exception : $uri")
 
 class RouteConflictException(path:String,classInfo:Class<*>,newClassInfo: Class<*>): RouteException("Route conflict : $path\n old:${classInfo} new:${newClassInfo}" )
+
+
+class DegradeLoadException(className:String): RouteException("Expected List<IDegradeRegister> but found :${className}")

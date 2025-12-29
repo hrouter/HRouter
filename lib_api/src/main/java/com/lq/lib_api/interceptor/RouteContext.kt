@@ -9,13 +9,4 @@ data class RouteContext(
         return request.copy(path = newPath)
     }
 
-    fun attemptsAdd(){
-    }
-
-
-
-    private fun updateAttempt(){
-
-    }
-
 }

@@ -7,7 +7,7 @@ import com.lq.lib_api.util.LogUtil
 class RealRouteChain(
     private val interceptors:List<IRouteInterceptor>,
     private val index: Int,
-    override val context: RouteContext
+    override val routeContext: RouteContext
 ): InterceptorChain {
 
     override suspend fun proceed(context: RouteContext): InterceptorResult {
