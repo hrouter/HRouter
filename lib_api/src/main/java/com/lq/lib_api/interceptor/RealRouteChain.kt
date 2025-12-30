@@ -14,7 +14,6 @@ class RealRouteChain(
         if (index >= interceptors.size) return InterceptorResult.Continue
 
         val next = RealRouteChain( interceptors,index + 1, context.copy(attempts = context.attempts + 1))
-        LogUtil.d("Interceptor Result : ${interceptors[index]} ${context.request.path} ${context.attempts} ")
 
         return when (val interceptorResult = interceptors[index].intercept(next)) {
             InterceptorResult.Continue -> next.proceed(context)

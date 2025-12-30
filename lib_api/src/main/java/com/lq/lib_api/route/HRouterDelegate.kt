@@ -7,23 +7,11 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.result.ActivityResultLauncher
 import androidx.core.app.ActivityOptionsCompat
-import com.lq.lib_annotation.data.RouteMeta
 import com.lq.lib_api.autowired.ParameterBuilder
 import com.lq.lib_api.degrade.DegradeContext
-import com.lq.lib_api.degrade.DegradeManager
-import com.lq.lib_api.entity.DispatchResult
 import com.lq.lib_api.interceptor.RouteContext
-import com.lq.lib_api.interceptor.RouteDispatcher
 import com.lq.lib_api.interceptor.RouteRequest
 import com.lq.lib_api.navigate.NavigateContext
-import com.lq.lib_api.util.LogUtil
-import com.lq.lib_api.util.routeDegradeCoroutineHandler
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.io.IOException
 
 internal class HRouterDelegate(private val path: String) {
 

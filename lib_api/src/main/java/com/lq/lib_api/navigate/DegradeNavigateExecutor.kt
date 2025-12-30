@@ -15,21 +15,22 @@ internal class DegradeNavigateExecutor : NavigateExecutor {
     ) {
         val context = navigateContext.routeContext
 
-        RouteDispatcher.dispatchAsync(
+       /* RouteDispatcher.dispatchAsync(
             context,
             onSuccess = { realPath ->
                 val intentBuilder = delegate.buildIntent(realPath)
-                LogUtil.d("navigateWithDegrade : $realPath")
+                LogUtil.d("Navigate Degrade Success : $realPath")
                 delegate.startActivity(intentBuilder)
             },
             onFail = { reason ->
-                LogUtil.d("navigateWithDegrade reason : $reason")
-                DegradeManager.handleDegrade(
+                LogUtil.d("Navigate Blocked : $reason")
+
+               *//* DegradeManager.handleDegrade(
                     navigateContext.path,
                     Exception(reason),
                     navigateContext.degradeContext
-                )
+                )*//*
             }, navigateContext.degradeContext
-        )
+        )*/
     }
 }

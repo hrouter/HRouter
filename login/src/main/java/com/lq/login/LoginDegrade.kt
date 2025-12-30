@@ -6,6 +6,7 @@ import com.lq.lib_api.degrade.DegradeRequest
 import com.lq.lib_api.entity.DegradeResult
 import com.lq.lib_api.util.LogUtil
 
+/*
 @RouteDegrade(priority = 3,path ="*" )
 class LoginDegrade: IRouteDegrade {
 
@@ -15,4 +16,4 @@ class LoginDegrade: IRouteDegrade {
 
         return DegradeResult.Redirect(request.copy(newPath = "/degrade/degrade",reason = "degrade degrade"))
     }
-}
+}*/

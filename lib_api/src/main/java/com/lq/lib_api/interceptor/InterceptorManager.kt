@@ -15,7 +15,7 @@ internal object InterceptorManager {
 
     /*
     * 这里是从小到大的一个TimeSort 归并排序
-    * 意味着优先级值 越低 优先级越高
+    * 意味着优先级的值 越低 优先级越高
     * */
     fun initInterceptor(context: Application) {
         val clazz = Class.forName("com.lq.router.InterceptorIndex")
@@ -29,7 +29,7 @@ internal object InterceptorManager {
         registers.forEach {
             it.register(data)
         }
-        data.add(InterceptorMeta("com.lq.lib_api.interceptor.LogInterceptor", priority = Int.MIN_VALUE)) //先添加一个地址拦截器，打印地址，
+//        data.add(InterceptorMeta("com.lq.lib_api.interceptor.LogInterceptor", priority = Int.MIN_VALUE)) //先添加一个地址拦截器，打印地址，
 
          data.sortedBy { it.priority }.map {
             InterceptorFactory.create(context, it.className).apply {

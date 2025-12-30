@@ -32,7 +32,7 @@ abstract class ContractTask : DefaultTask(){
             val metaInfDir = File(it.buildDir, "generated/ksp/debug/resources/META-INF/$path")
             if(metaInfDir.exists()){
                 metaInfDir.listFiles()?.forEach { file ->
-//                    println("HRouterIndex file:${file.name}")
+                    println("HRouterIndex file:${file.name}")
                     val lines = file.readLines().map { it.trim() }.filter { it.isNotEmpty() }
                     rootClassNames.addAll(lines)
                 }

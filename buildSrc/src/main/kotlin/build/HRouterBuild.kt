@@ -24,7 +24,10 @@ abstract class HRouterBuild : DefaultTask(){
     private fun findUtil(path:String): MutableSet<String>{
         val rootClassNames = mutableSetOf<String>()
         project.rootProject.subprojects.forEach {
-            val metaInfDir = File(it.buildDir, "generated/ksp/debug/resources/META-INF/$path")
+            val metaInfDir: File = it.layout.buildDirectory
+                .dir("generated/ksp/debug/resources/META-INF/$path")
+                .get()          // 获取 Directory 对象
+                .asFile
             if(metaInfDir.exists()){
                 metaInfDir.listFiles()?.forEach { file ->
                     println("HRouterIndex file:${file.name}")
@@ -40,7 +43,11 @@ abstract class HRouterBuild : DefaultTask(){
     }
 
     private fun generateHRouteIndex(rootClassNames: MutableSet<String>){
-        val outputDir = File(project.buildDir, "generated/route")
+        val outputDir: File = project.layout.buildDirectory
+            .dir("generated/route")
+            .get()          // 获取 Directory 对象
+            .asFile
+//        val outputDir = File(project.buildDir, "generated/route")
         val outputFile = File(outputDir, "HRouterIndex.kt")
 
         // 确保父目录存在
@@ -70,7 +77,11 @@ abstract class HRouterBuild : DefaultTask(){
     }
 
     private fun generateInterceptorIndex(classNames: MutableSet<String>){
-        val outputDir = File(project.buildDir, "generated/interceptor")
+        val outputDir: File = project.layout.buildDirectory
+            .dir("generated/interceptor")
+            .get()          // 获取 Directory 对象
+            .asFile
+//        val outputDir = File(project.buildDir, "generated/interceptor")
         val outputFile = File(outputDir, "InterceptorIndex.kt")
 
         outputFile.parentFile.mkdirs()

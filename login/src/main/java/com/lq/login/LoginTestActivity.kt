@@ -16,7 +16,7 @@ import com.lq.lib_annotation.Route
 import com.lq.lib_annotation.DeepLink
 import com.lq.lib_api.HRouter
 
-@Route(path = "/mock/test")
+@Route(path = "/login/test")
 class LoginTestActivity: ComponentActivity() {
     @AutoWired
     var userName:String = ""
@@ -24,8 +24,8 @@ class LoginTestActivity: ComponentActivity() {
     @AutoWired
     var account :Int?=null
 
-//    @AutoWired
-//    lateinit var mock: String
+    @AutoWired
+    lateinit var mock: String
 
 
 
@@ -44,7 +44,7 @@ class LoginTestActivity: ComponentActivity() {
             Text(text = "MockTest", fontSize = 28.sp)
             Text("userName: $userName")
             Text("account: $account")
-//            Text("mock: $mock")
+            Text("mock: $mock")
         }
 
 

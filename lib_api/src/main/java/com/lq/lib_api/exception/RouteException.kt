@@ -21,3 +21,5 @@ class RouteConflictException(path:String,classInfo:Class<*>,newClassInfo: Class<
 
 
 class DegradeLoadException(className:String): RouteException("Expected List<IDegradeRegister> but found :${className}")
+
+class DegradeFailException(path: String): RouteException("Degrade fail : $path")

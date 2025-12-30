@@ -29,11 +29,6 @@ android {
         }
     }
 
-    sourceSets["main"].java.srcDirs(
-        "build/generated/route",
-        "build/generated/interceptor",
-        "build/generated/degrade",
-        "build/generated/deeplink")
 
     buildTypes {
         release {

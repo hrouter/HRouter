@@ -1,6 +1,5 @@
 package com.lq.lib_api.degrade
 
-import android.util.Log
 import com.lq.lib_annotation.data.DegradeMeta
 import com.lq.lib_api.HRouter
 import com.lq.lib_api.entity.DegradeResult

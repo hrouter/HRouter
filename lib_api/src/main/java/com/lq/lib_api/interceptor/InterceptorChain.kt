@@ -9,10 +9,10 @@ interface InterceptorChain {
     suspend fun proceed(context: RouteContext = this.routeContext): InterceptorResult
 
     fun redirect(newPath: String): RouteContext{
-        routeContext.copy(
+        val context = routeContext.copy(
             request = routeContext.request.copy(path = newPath)
         )
-        return routeContext
+        return context
     }
 
 

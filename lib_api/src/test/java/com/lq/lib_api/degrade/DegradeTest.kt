@@ -52,6 +52,7 @@ class DegradeTest {
         assertTrue(degradeB in degrades)
         assertEquals(listOf(routeDegradeA,routeDegradeB), DegradeManager.getDegradesFromRequest(degrades,"/mock/mock"))
 
+        //验证当前的匹配规则
         val fakeMock = DegradeManager.getDegradesFromRequest(degrades,"/mock/fake")
         assertFalse(routeDegradeA in fakeMock)
         assertTrue(routeDegradeB in fakeMock)

@@ -1,8 +1,9 @@
 package com.lq.lib_api.interceptor
 
-import com.lq.lib_api.degrade.DegradeContext
+import com.lq.lib_api.entity.DispatchFailReason
 import com.lq.lib_api.entity.DispatchResult
 import com.lq.lib_api.entity.InterceptorResult
+import com.lq.lib_api.navigate.NavigateContext
 import com.lq.lib_api.util.LogUtil
 import com.lq.lib_api.util.routeDegradeCoroutineHandler
 import kotlinx.coroutines.CoroutineDispatcher
@@ -12,7 +13,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-object RouteDispatcher {
+internal object RouteDispatcher {
     private const val MAX_REDIRECT = 3
 
     var ioDispatcher: CoroutineDispatcher = Dispatchers.IO
@@ -24,19 +25,18 @@ object RouteDispatcher {
      * @param context 路由请求上下文
      * @param onSuccess 成功回调，返回最终路径
      * @param onFail 失败回调，返回失败原因
-     * @param degradeContext 降级上下文，避免循环降级
      */
     fun dispatchAsync(
-        context: RouteContext,
+        context: NavigateContext,
         onSuccess: (realPath: String) -> Unit,
-        onFail: (reason: String) -> Unit,
-        degradeContext: DegradeContext?=null
+        onFail: (reason: DispatchFailReason) -> Unit,
     ) {
+        val degradeContext = context.degradeContext
         // 使用协程在 IO 线程调度
-        CoroutineScope(ioDispatcher+ SupervisorJob() + routeDegradeCoroutineHandler(context,degradeContext))
+        CoroutineScope(ioDispatcher+ SupervisorJob() + routeDegradeCoroutineHandler(context))
             .launch {
                 try {
-                    when (val result = dispatch(context)) {
+                    when (val result = dispatch(context.routeContext)) {
                         is DispatchResult.Success -> {
                             val realPath = result.context.request.path
                             withContext(mainDispatcher) {
@@ -46,13 +46,16 @@ object RouteDispatcher {
 
                         is DispatchResult.Fail -> {
                             withContext(mainDispatcher) {
-                                onFail(result.reason)
+                                if(degradeContext!=null) onFail(DispatchFailReason.Degrade(degradeContext))
+                                else onFail(result.reason)
                             }
                         }
                     }
                 } catch (e: Exception) {
+                    e.printStackTrace()
                     withContext(mainDispatcher) {
-                        onFail(e.message ?: "Unknown Error")
+                        if(degradeContext!=null) onFail(DispatchFailReason.Degrade(degradeContext,e.message?:"Unknow Error"))
+                        else onFail(DispatchFailReason.Exception(e))
                     }
                 }
             }
@@ -67,6 +70,8 @@ object RouteDispatcher {
         while (true) {
             val interceptors = InterceptorManager.getInterceptorsForRequest(currentContext.request.path)
 
+            if(interceptors.isEmpty()) return DispatchResult.Success(currentContext)
+
             val chain = RealRouteChain(interceptors, 0, currentContext)
 
             LogUtil.d("Interceptor Result : ${interceptors.first()} ${currentContext.request.path} ${currentContext.attempts} ")
@@ -75,10 +80,11 @@ object RouteDispatcher {
 
                 is InterceptorResult.Continue ->  return DispatchResult.Success(currentContext)
 
-                is InterceptorResult.Fail ->  return DispatchResult.Fail(action.reason)
+                is InterceptorResult.Fail ->  return DispatchResult.Fail(DispatchFailReason.Intercepted) //被拦截器拦截
 
                 is InterceptorResult.Redirect -> {
-                    if(action.newContext.attempts >= MAX_REDIRECT) return DispatchResult.Fail("Redirect Loop")
+                    if(action.newContext.attempts >= MAX_REDIRECT)
+                        return DispatchResult.Fail(DispatchFailReason.LoopDetected(currentContext.request.path))
                     currentContext = action.newContext
                     LogUtil.d("Redirect Context :${currentContext.request.path} ${currentContext.attempts}")
                     continue

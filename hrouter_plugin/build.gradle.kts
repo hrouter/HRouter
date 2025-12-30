@@ -13,9 +13,9 @@ repositories {
     mavenCentral()
 }
 
-//dependencies {
-//    implementation("com.lq.hrouter:lib_annotation:0.0.1")
-//}
+dependencies {
+    compileOnly("com.android.tools.build:gradle:8.2.2")
+}
 
 gradlePlugin {
     plugins {

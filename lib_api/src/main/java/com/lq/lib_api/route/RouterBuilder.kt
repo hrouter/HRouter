@@ -6,7 +6,6 @@ import androidx.activity.result.ActivityResultLauncher
 import com.lq.lib_api.autowired.ParameterBuilder
 import com.lq.lib_api.degrade.DegradeContext
 import com.lq.lib_api.navigate.DefaultNavigateExecutor
-import com.lq.lib_api.navigate.DegradeNavigateExecutor
 import com.lq.lib_api.navigate.NavigateContext
 import com.lq.lib_api.navigate.NavigateExecutor
 
@@ -21,16 +20,14 @@ class RouterBuilder (val path: String){
     fun withLauncher(launcher: ActivityResultLauncher<Intent>) = apply { delegate.withLauncher(launcher) }
 
     fun navigate() {
-        val navigateContext: NavigateContext = delegate.buildNavigateContext()
-        executor.execute(delegate, navigateContext)
+      navigateExecute()
     }
 
-    internal fun setExecutor(navigateExecutor: NavigateExecutor) = apply {
-        this.executor = navigateExecutor
+    internal fun navigateWithDegradeContext(degradeContext: DegradeContext){
+        navigateExecute(degradeContext)
     }
 
-    internal fun navigateWithDegradeContext(degradeContext: DegradeContext,navigateExecutor: NavigateExecutor?=null){
-        setExecutor(navigateExecutor?: DegradeNavigateExecutor())
+    private fun navigateExecute(degradeContext: DegradeContext?=null){
         val navigateContext: NavigateContext = delegate.buildNavigateContext(degradeContext)
         executor.execute(delegate, navigateContext)
     }
