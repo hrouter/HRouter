@@ -24,6 +24,15 @@ publishing {
     }
 
     repositories {
-        mavenLocal() // 本地仓库发布
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/hongyi3715/HRouter")
+            credentials {
+                username = project.findProperty("gpr.user") as String?
+                    ?: System.getenv("GITHUB_ACTOR")
+                password = project.findProperty("gpr.key") as String?
+                    ?: System.getenv("GITHUB_TOKEN")
+            }
+        }
     }
 }
