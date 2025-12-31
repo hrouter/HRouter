@@ -4,7 +4,6 @@ import com.lq.lib_annotation.RouteDegrade
 import com.lq.lib_api.degrade.IRouteDegrade
 import com.lq.lib_api.degrade.DegradeRequest
 import com.lq.lib_api.entity.DegradeResult
-import com.lq.lib_api.util.LogUtil
 
 /*
 @RouteDegrade(priority = 3,path ="*" )

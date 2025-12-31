@@ -40,7 +40,7 @@ internal class RouteInterceptorPart(environment: SymbolProcessorEnvironment): Pr
                         "priority" -> priority = arg.value as Int
                     }
                 }
-                logger.warn("Route Interceptor Class Path :$className  Priority:$priority")
+//                logger.warn("Route Interceptor Class Path :$className  Priority:$priority")
                 routeInterceptors += "InterceptorMeta(\"$className\",$priority,\"$path\")"
             }
         if(routeInterceptors.isNotEmpty()){

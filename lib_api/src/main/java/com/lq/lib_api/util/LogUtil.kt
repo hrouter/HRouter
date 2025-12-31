@@ -1,13 +1,18 @@
 package com.lq.lib_api.util
 
 
-
-object LogUtil {
+internal object LogUtil {
     private val logTag = "RouteLog"
 
-    fun v(tag: String, msg: String) = println("V/$tag: $msg")
-    fun i(msg: String, tag: String? = logTag) = println("I/${tag ?: logTag}: $msg")
-    fun d(msg: String, tag: String? = logTag) = println("D/${tag ?: logTag}: $msg")
-    fun w(tag: String, msg: String) = println("W/$tag: $msg")
-    fun e(msg: String, tag: String = logTag) = println("E/$tag: $msg")
+    private var debug: Boolean = false
+
+    fun setDebugMode(isDebug: Boolean) {
+        this.debug = isDebug
+    }
+
+    internal fun v(tag: String, msg: String) = debug.also { if(it) println("V/$tag: $msg") }
+    internal fun i(msg: String, tag: String? = logTag) = debug.also { if(it) println("I/$tag: $msg") }
+    internal fun d(msg: String, tag: String? = logTag) = debug.also { if(it) println("D/$tag: $msg") }
+    internal fun w(tag: String, msg: String) = debug.also { if(it) println("W/$tag: $msg") }
+    internal fun e(msg: String, tag: String = logTag) = debug.also { if(it) println("E/$tag: $msg") }
 }

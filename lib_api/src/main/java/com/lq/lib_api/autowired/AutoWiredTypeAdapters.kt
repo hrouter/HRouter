@@ -49,7 +49,7 @@ object AutoWiredTypeAdapters {
         adapters[type] = adapter
     }*/
 
-    fun getAdapter(type: KClass<*>): ((Bundle?, String) -> Any?)? {
+     fun getAdapter(type: KClass<*>): ((Bundle?, String) -> Any?)? {
         if (Parcelable::class.java.isAssignableFrom(type.java)) {
             return adapters[Parcelable::class]
         }
@@ -59,7 +59,4 @@ object AutoWiredTypeAdapters {
         return adapters[type]
     }
 
-}
-
-fun test(bundle: Bundle?){
 }

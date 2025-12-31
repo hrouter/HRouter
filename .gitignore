@@ -60,3 +60,6 @@ Desktop.ini
 .kotlinc/
 
 .apk
+./keystore
+./app/release
+.idea/*

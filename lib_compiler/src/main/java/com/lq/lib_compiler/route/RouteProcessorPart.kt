@@ -54,9 +54,9 @@ internal class RouteSymbolProcessorPart(environment: SymbolProcessorEnvironment)
 
                 RouteDeepLinkUtil.classToPath(classInfo,path)
             }
-        routeMap.forEach {
+      /*  routeMap.forEach {
             logger.warn("Route Map Info :$it")
-        }
+        }*/
         if(routeMap.isNotEmpty()){
             generateGroup(routeMap)
             generateRoot(routeMap)
@@ -103,7 +103,7 @@ internal class RouteSymbolProcessorPart(environment: SymbolProcessorEnvironment)
             )
             for ((path,classInfo) in pathMap){
                 val destinationClassName = ClassName.bestGuess(classInfo)
-                logger.warn("generateGroup groupName:$groupName className:$className path:$path classInfo:$classInfo")
+//                logger.warn("generateGroup groupName:$groupName className:$className path:$path classInfo:$classInfo")
                 val routeMetaInstance = CodeBlock.of(
                     "%T(%S, %T::class.java, %S)",
                     routeMetaClass, path, destinationClassName, groupName

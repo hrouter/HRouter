@@ -8,6 +8,7 @@ import com.lq.lib_api.degrade.DegradeManager
 import com.lq.lib_api.exception.UriParseIllegalException
 import com.lq.lib_api.interceptor.InterceptorManager
 import com.lq.lib_api.route.RouteHelper
+import com.lq.lib_api.util.LogUtil
 
 object HRouter {
 
@@ -59,6 +60,10 @@ object HRouter {
               }
           }
         return routerBuilder
+    }
+
+    fun debug(isDebug:Boolean){
+        LogUtil.setDebugMode(isDebug)
     }
 
 
