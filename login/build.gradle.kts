@@ -40,9 +40,8 @@ android {
 }
 
 dependencies {
-    implementation(project(":lib_annotation"))
-    implementation(project(":lib_api"))
-    ksp(project(":lib_compiler"))
+    implementation("com.lq.hrouter:lib_api:0.0.1")
+    ksp("com.lq.hrouter:lib_compiler:0.0.1")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

@@ -13,7 +13,7 @@ kotlin {
     }
 }
 dependencies{
-    implementation(project(":lib_annotation"))
+    implementation("com.lq.hrouter:lib_annotation:0.0.1")
 
     implementation(libs.kotlinpoet)
     implementation(libs.kotlinpoet.ksp)

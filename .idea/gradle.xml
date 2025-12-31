@@ -7,11 +7,6 @@
         <compositeConfiguration>
           <compositeBuild compositeDefinitionSource="SCRIPT">
             <builds>
-              <build path="$PROJECT_DIR$/buildSrc" name="buildSrc">
-                <projects>
-                  <project path="$PROJECT_DIR$/buildSrc" />
-                </projects>
-              </build>
               <build path="$PROJECT_DIR$/hrouter_plugin" name="hrouter_plugin">
                 <projects>
                   <project path="$PROJECT_DIR$/hrouter_plugin" />
@@ -27,11 +22,7 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
-            <option value="$PROJECT_DIR$/buildSrc" />
             <option value="$PROJECT_DIR$/hrouter_plugin" />
-            <option value="$PROJECT_DIR$/lib_annotation" />
-            <option value="$PROJECT_DIR$/lib_api" />
-            <option value="$PROJECT_DIR$/lib_compiler" />
             <option value="$PROJECT_DIR$/login" />
           </set>
         </option>

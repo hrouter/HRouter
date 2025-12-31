@@ -54,24 +54,6 @@ Desktop.ini
 *.key
 *.crt
 
-# Firebase / Crashlytics
-crashlytics-build.properties
-fabric.properties
-google-services.json
-
-# Fastlane
-fastlane/report.xml
-fastlane/Preview.html
-fastlane/screenshots
-fastlane/test_output
-
-# VSCode
-.vscode/
-
-# NDK
-obj/
-gen/
-bin/
 
 # Kotlin Symbol Processing (KSP)
 .ksp/

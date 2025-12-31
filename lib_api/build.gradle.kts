@@ -39,7 +39,7 @@ android {
 }
 
 dependencies {
-    implementation(project(":lib_annotation"))
+    api("com.lq.hrouter:lib_annotation:0.0.1")
 
 
     implementation(libs.androidx.core.ktx)
