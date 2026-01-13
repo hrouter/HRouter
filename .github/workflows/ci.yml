@@ -4,10 +4,14 @@ on:
   push:
     branches: [ master ]
 
+#ci应该有 代码风格监测，依赖风险监测，单测，集成测试等等
+
 jobs:
   build:
     name: 构建 APK
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.versioning.outputs.version }}
 
     steps:
       - name: 📂 拉取代码
@@ -35,10 +39,10 @@ jobs:
 
       - name: 📆 生成版本号
         id: versioning
-        run: |
-          VERSION_NAME="v$(date +'%Y.%m.%d').$GITHUB_RUN_NUMBER"
-          echo "VERSION_NAME=$VERSION_NAME" >> $GITHUB_ENV
-          echo "::set-output name=version::$VERSION_NAME"
+        run: bash .github/workflows/set_version.sh
+
+      - name: 运行单元测试
+        run: ./gradlew test
 
       - name: 👼 构建 release APK
         run: ./gradlew assembleRelease -Psigning.store.file=keystore.jks -Psigning.store.password=${{ secrets.SIGNING_STORE_PASSWORD }} -Psigning.key.alias=${{ secrets.SIGNING_KEY_ALIAS }} -Psigning.key.password=${{ secrets.SIGNING_KEY_PASSWORD }}
@@ -61,8 +65,8 @@ jobs:
       - name: 🎉 创建 GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          name: ${{ needs.build.outputs.versioning.version }}
-          tag_name: ${{ needs.build.outputs.versioning.version }}
+          name: ${{ needs.build.outputs.version }}
+          tag_name: ${{ needs.build.outputs.version }}
           files: app/build/outputs/apk/release/*.apk
 
   notify:
@@ -78,13 +82,13 @@ jobs:
           server_port: 465
           username: ${{ secrets.MAIL_USERNAME }}
           password: ${{ secrets.MAIL_PASSWORD }}
-          subject: "新版本发布: ${{ env.VERSION_NAME }}"
+          subject: "新版本发布: ${{ needs.build.outputs.version }}"
           to: your@email.com
           from: GitHub Action <${{ secrets.MAIL_USERNAME }}>
           body: |
             您好，
 
-            Android APK ${{ env.VERSION_NAME }} 已经构建并上传。
+            Android APK ${{ needs.build.outputs.version }} 已经构建并上传。
 
             请检查 GitHub Release 页面下载。
 

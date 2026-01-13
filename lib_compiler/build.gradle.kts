@@ -4,16 +4,16 @@ plugins {
     id("maven-publish")
 }
 java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 kotlin {
     compilerOptions {
-        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11
+        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
     }
 }
 dependencies{
-    implementation("com.lq.hrouter:lib_annotation:0.0.1")
+    implementation(project(":lib_annotation"))
 
     implementation(libs.kotlinpoet)
     implementation(libs.kotlinpoet.ksp)
@@ -22,9 +22,9 @@ dependencies{
 publishing {
     publications {
         create<MavenPublication>("compilerJar") {
-            groupId = "com.lq.hrouter"
+            groupId = "io.github.hrouter"
             artifactId = "lib_compiler"
-            version = "0.0.1"
+            version = "0.0.2"
 
             from(components["java"])
         }
@@ -33,7 +33,7 @@ publishing {
     repositories {
         maven {
             name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/hongyi3715/HRouter")
+            url = uri("https://maven.pkg.github.com/hrouter/HRouter")
             credentials {
                 username = project.findProperty("gpr.user") as String?
                     ?: System.getenv("GITHUB_ACTOR")

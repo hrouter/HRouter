@@ -4,7 +4,7 @@ plugins {
     id("com.gradle.plugin-publish") version "2.0.0"
 }
 
-group = "com.lq.hrouter"
+group = "io.github.hrouter"
 version = "0.0.1"
 
 dependencies {
@@ -13,11 +13,11 @@ dependencies {
 
 
 gradlePlugin {
-    website.set("https://maven.pkg.github.com/hongyi3715/HRouter")
-    vcsUrl.set("https://maven.pkg.github.com/hongyi3715/HRouter.git")
+    website.set("https://github.com/hrouter/HRouter")
+    vcsUrl.set("https://github.com/hrouter/HRouter.git")
     plugins {
         create("hrouterPlugin") {
-            id = "com.lq.hrouter"
+            id = "io.github.hrouter"
             implementationClass = "com.lq.hrouter_plugin.HRouterPlugin"
             displayName = "HRouter Plugin"
             description = "HRouter Gradle Plugin for automatic routing and injection"

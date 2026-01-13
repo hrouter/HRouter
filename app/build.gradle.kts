@@ -3,7 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
-//    id("com.lq.hrouter") version "0.0.1"
+//    id("com.lq.hrouter")
 }
 
 android {
@@ -40,11 +40,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "17"
     }
     buildFeatures {
         compose = true
@@ -56,8 +56,8 @@ android {
 }
 
 dependencies {
-    implementation("com.lq.hrouter:lib_api:0.0.1")
-    ksp("com.lq.hrouter:lib_compiler:0.0.1")
+    implementation(project(":lib_api"))
+    ksp(project(":lib_compiler"))
     implementation(project(":login"))
 
     implementation(libs.androidx.core.ktx)
