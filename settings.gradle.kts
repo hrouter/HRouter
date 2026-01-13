@@ -7,7 +7,7 @@ pluginManagement {
                 includeGroupByRegex("androidx.*")
             }
         }
-        includeBuild("hrouter_plugin")
+//        includeBuild("hrouter_plugin")
         mavenCentral()
         gradlePluginPortal()
     }
@@ -25,7 +25,7 @@ dependencyResolutionManagement {
 rootProject.name = "HRouter"
 include(":app")
 include(":login")
-//include(":hrouter_plugin")
+include(":hrouter_plugin")
 include(":lib_compiler")
 include(":lib_annotation")
 include(":lib_api")

@@ -2,7 +2,7 @@ name: Android CI/CD with Release and Notification
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main,ci_debug ]
 
 #ci应该有 代码风格监测，依赖风险监测，单测，集成测试等等
 
