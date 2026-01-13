@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.hrouter.plugin)
 }
 
 android {
@@ -20,7 +21,7 @@ android {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
         }
     }
@@ -34,14 +35,11 @@ android {
     buildFeatures {
         compose = true
     }
-    ksp {
-        arg("moduleName",project.name)
-    }
 }
 
 dependencies {
-    implementation(project(":lib_api"))
-    ksp(project(":lib_compiler"))
+    implementation(project(":core"))
+    ksp(project(":compiler"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

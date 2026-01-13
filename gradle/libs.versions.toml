@@ -1,5 +1,5 @@
 [versions]
-agp = "8.9.2"
+agp = "8.9.3"
 gradle = "8.1.4"
 kotlin = "2.1.20"
 coreKtx = "1.16.0"
@@ -14,8 +14,13 @@ jetbrainsKotlinJvm = "2.1.20"
 kotlinpoet = "2.1.0"
 appcompat = "1.7.0"
 material = "1.12.0"
-hrouter = "0.0.1"
-coroutines = "1.7.3"
+hrouter = "0.0.2"
+coroutines = "1.9.0"
+
+ktlint = "14.0.1"
+detekt = "1.23.8"
+
+vanniktech = "0.30.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -42,9 +47,8 @@ androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 
 #hrouter
-hrouter-annotation = { group = "com.lq.hrouter" , name="lib_annotation", version.ref = "hrouter" }
-hrouter-api = { group = "com.lq.hrouter" , name = "lib_api", version.ref = "hrouter"}
-hrouter-compiler = { group = "com.lq.hrouter", name = "lib_compiler", version.ref = "hrouter"}
+hrouter-core = { group = "io.github.hrouter" , name = "core", version.ref = "hrouter"}
+hrouter-compiler = { group = "io.github.hrouter", name = "compiler", version.ref = "hrouter"}
 
 #coroutine-test
 coroutine-test = { group = "org.jetbrains.kotlinx" , name = "kotlinx-coroutines-test", version.ref = "coroutines" }
@@ -56,5 +60,8 @@ kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "ko
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "jetbrainsKotlinJvm" }
 android-library = { id = "com.android.library", version.ref = "agp" }
-hrouter-plugin = { id = "com.lq.hrouter", version.ref = "hrouter"}
+ktlint = { id = "org.jlleitschuh.gradle.ktlint",version.ref = "ktlint"}
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt"}
+vanniktech = {id = "com.vanniktech.maven.publish",version.ref = "vanniktech"}
+hrouter-plugin = { id = "io.github.hrouter", version.ref = "hrouter"}
 

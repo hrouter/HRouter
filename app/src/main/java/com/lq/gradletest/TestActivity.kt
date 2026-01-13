@@ -11,20 +11,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.lq.lib_annotation.AutoWired
-import com.lq.lib_annotation.Route
-import com.lq.lib_annotation.DeepLink
-import com.lq.lib_api.HRouter
+import com.lq.annotation.AutoWired
+import com.lq.annotation.DeepLink
+import com.lq.annotation.Route
+import com.lq.core.HRouter
 
 @Route(path = "/main/test")
-@DeepLink(schemes = ["myapp"], hosts = ["com.lq.mock","main/test"])
+@DeepLink(schemes = ["myapp"], hosts = ["com.lq.mock", "main/test"])
 class TestActivity : ComponentActivity() {
+    @AutoWired
+    var userName: String? = "gg"
 
     @AutoWired
-    var userName: String?="gg"
-
-    @AutoWired
-    var account:Int ?= 10000
+    var account: Int? = 10000
 
     @AutoWired
     lateinit var user: UserInfo
@@ -36,8 +35,9 @@ class TestActivity : ComponentActivity() {
         }
         HRouter.inject(this)
     }
+
     @Composable
-    fun TestScreen(){
+    fun TestScreen() {
         Column(modifier = Modifier.fillMaxSize().padding(88.dp)) {
             Text(text = "/main/test", fontSize = 28.sp)
             Text("userName: $userName")
@@ -46,4 +46,3 @@ class TestActivity : ComponentActivity() {
         }
     }
 }
-

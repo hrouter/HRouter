@@ -7,7 +7,7 @@ pluginManagement {
                 includeGroupByRegex("androidx.*")
             }
         }
-//        includeBuild("hrouter_plugin")
+        includeBuild("hrouter_plugin")
         mavenCentral()
         gradlePluginPortal()
     }
@@ -15,7 +15,7 @@ pluginManagement {
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
-//        mavenLocal()
+        mavenLocal()
         gradlePluginPortal()
         google()
         mavenCentral()
@@ -25,7 +25,7 @@ dependencyResolutionManagement {
 rootProject.name = "HRouter"
 include(":app")
 include(":login")
-include(":hrouter_plugin")
-include(":lib_compiler")
-include(":lib_annotation")
-include(":lib_api")
+// include(":hrouter_plugin")
+include(":compiler")
+include(":annotation")
+include(":core")

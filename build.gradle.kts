@@ -5,4 +5,19 @@ plugins {
     alias(libs.plugins.kotlin.compose) apply false
     alias(libs.plugins.jetbrains.kotlin.jvm) apply false
     alias(libs.plugins.android.library) apply false
+    alias(libs.plugins.ktlint)
+    alias(libs.plugins.detekt)
+    alias(libs.plugins.vanniktech) apply false
+}
+
+ktlint {
+    verbose.set(true)
+    android.set(true)
+    outputColorName.set("RED")
+}
+
+detekt {
+    ignoreFailures = true
+    buildUponDefaultConfig = true
+    parallel = true
 }

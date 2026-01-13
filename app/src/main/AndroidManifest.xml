@@ -32,7 +32,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="https" android:host="com.lq.mock" />
-                <data android:scheme="myapp" android:host="com.lq.mock" />
             </intent-filter>
         </activity>
     </application>

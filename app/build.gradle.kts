@@ -3,12 +3,12 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
-//    id("com.lq.hrouter")
+    alias(libs.plugins.hrouter.plugin)
 }
 
 android {
     namespace = "com.lq.gradletest"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.lq.gradletest"
@@ -29,13 +29,12 @@ android {
         }
     }
 
-
     buildTypes {
         release {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
         }
     }
@@ -49,15 +48,12 @@ android {
     buildFeatures {
         compose = true
     }
-    ksp {
-        arg("moduleName",project.name)
-    }
-
 }
 
 dependencies {
-    implementation(project(":lib_api"))
-    ksp(project(":lib_compiler"))
+    implementation(project(":core"))
+//    implementation(libs.hrouter.core)
+    ksp(project(":compiler"))
     implementation(project(":login"))
 
     implementation(libs.androidx.core.ktx)
@@ -76,4 +72,3 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 }
-

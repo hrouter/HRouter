@@ -11,23 +11,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.lq.lib_annotation.AutoWired
-import com.lq.lib_annotation.Route
-import com.lq.lib_annotation.DeepLink
-import com.lq.lib_api.HRouter
+import com.lq.annotation.AutoWired
+import com.lq.annotation.Route
+import com.lq.core.HRouter
 
 @Route(path = "/login/test")
-class LoginTestActivity: ComponentActivity() {
+class LoginTestActivity : ComponentActivity() {
     @AutoWired
-    var userName:String = ""
+    var userName: String = ""
 
     @AutoWired
-    var account :Int?=null
+    var account: Int? = null
 
     @AutoWired
     lateinit var mock: String
-
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,14 +36,12 @@ class LoginTestActivity: ComponentActivity() {
     }
 
     @Composable
-    fun LoginScreen(){
+    fun LoginScreen() {
         Column(modifier = Modifier.fillMaxSize().padding(88.dp)) {
             Text(text = "MockTest", fontSize = 28.sp)
             Text("userName: $userName")
             Text("account: $account")
             Text("mock: $mock")
         }
-
-
     }
 }

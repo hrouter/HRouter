@@ -41,6 +41,14 @@ jobs:
         id: versioning
         run: bash .github/workflows/set_version.sh
 
+      - name: 依赖安全检查
+        uses: owasp/dependency-check-action@v2
+        with:
+          project: 'HRouter'
+          format: 'ALL'
+          scan: './'
+
+
       - name: 运行单元测试
         run: ./gradlew test
 

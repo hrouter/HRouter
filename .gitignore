@@ -54,6 +54,8 @@ Desktop.ini
 *.key
 *.crt
 
+*.asc
+
 
 # Kotlin Symbol Processing (KSP)
 .ksp/
@@ -63,3 +65,4 @@ Desktop.ini
 ./keystore
 ./app/release
 .idea/*
+

@@ -11,23 +11,22 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.lq.lib_annotation.AutoWired
-import com.lq.lib_annotation.Route
-import com.lq.lib_annotation.DeepLink
-import com.lq.lib_api.HRouter
+import com.lq.annotation.AutoWired
+import com.lq.annotation.DeepLink
+import com.lq.annotation.Route
+import com.lq.core.HRouter
 
 @Route(path = "/login/login")
-@DeepLink(schemes = ["myapp","https"],hosts =["com.lq.mock","login/login"] )
-class LoginActivity: ComponentActivity() {
+@DeepLink(schemes = ["myapp", "https"], hosts = ["com.lq.mock", "login/login"])
+class LoginActivity : ComponentActivity() {
     @AutoWired()
-    var userName:String = "Ios"
+    var userName: String = "Ios"
 
     @AutoWired
-    var account :Int?=null
+    var account: Int? = null
 
     @AutoWired
-    lateinit var mock:String
-
+    lateinit var mock: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,15 +38,12 @@ class LoginActivity: ComponentActivity() {
     }
 
     @Composable
-    fun LoginScreen(){
+    fun LoginScreen() {
         Column(modifier = Modifier.fillMaxSize().padding(88.dp)) {
             Text(text = "Login/Login登录信息", fontSize = 28.sp)
             Text("userName: $userName")
             Text("account: $account")
             Text("mock: $mock")
         }
-
-
     }
 }
-
