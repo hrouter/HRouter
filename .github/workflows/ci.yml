@@ -57,6 +57,8 @@ jobs:
     name: 创建 Release
     needs: build
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: 📂 拉取代码
@@ -68,28 +70,3 @@ jobs:
           name: ${{ needs.build.outputs.version }}
           tag_name: ${{ needs.build.outputs.version }}
           files: app/build/outputs/apk/release/*.apk
-
-  notify:
-    name: 通知邮件
-    needs: release
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: 📬 发送邮件
-        uses: dawidd6/action-send-mail@v3
-        with:
-          server_address: smtp.163.com
-          server_port: 465
-          username: ${{ secrets.MAIL_USERNAME }}
-          password: ${{ secrets.MAIL_PASSWORD }}
-          subject: "新版本发布: ${{ needs.build.outputs.version }}"
-          to: your@email.com
-          from: GitHub Action <${{ secrets.MAIL_USERNAME }}>
-          body: |
-            您好，
-
-            Android APK ${{ needs.build.outputs.version }} 已经构建并上传。
-
-            请检查 GitHub Release 页面下载。
-
-            谢谢！
