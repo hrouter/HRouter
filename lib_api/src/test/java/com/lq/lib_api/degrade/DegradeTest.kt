@@ -2,7 +2,6 @@ package com.lq.lib_api.degrade
 
 import com.lq.lib_annotation.data.DegradeMeta
 import com.lq.lib_api.HRouter
-import com.lq.lib_api.autowired.test
 import com.lq.lib_api.exception.FakeDegradeRegistry
 import com.lq.lib_api.interceptor.RouteDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -80,8 +79,7 @@ class DegradeTest {
 
         RouteDispatcher.mainDispatcher = testDispatcher
 
-        HRouter.build("/mock/fake").navigateWithDegradeContext(DegradeContext(),
-            FakeNavigateExecutor()) //模拟内部跳转
+        HRouter.build("/mock/fake").navigateWithDegradeContext(DegradeContext()) //模拟内部跳转
 
     }
 }
